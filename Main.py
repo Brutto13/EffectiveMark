@@ -258,9 +258,9 @@ class GPUStressTest(mglw.WindowConfig):
                 // Funkcja obciążająca GPU
                 float heavyCalc(float x) {
                     float v = x;
-                    for (int i = 0; i < 1000000; i++) {
-                        v = exp(sin(cos(log(v+1))) + sqrt(abs(cos(sin(v*1.1)))) + log(sqrt(abs(v))+1));
-                        v = mod(v, 1.0);
+                    for (int i = 0; i < 10000; i++) {
+                        v = cos(log(v+1)) + sin(v*1.1) + abs(v)+1;
+                        
                     }
                     return v;
                 }
@@ -277,13 +277,17 @@ class GPUStressTest(mglw.WindowConfig):
         self.vbo = self.ctx.buffer(vertices.tobytes())
         self.vao = self.ctx.simple_vertex_array(self.prog, self.vbo, "in_position")
 
-    def on_render(self, time: float, frame_time: float) -> None:
+        self.frame_count = 0
+        self.start_time = time.perf_counter()
+        self.test_duration = 10
+
+    def on_render(self, time1: float, frame_time: float) -> None:
         global gpu_score
         self.ctx.clear(0.0, 0.0, 0.0)
         self.vao.render(mode=moderngl.TRIANGLES)
 
         self.frame_count += 1
-        elapsed = time.time() - self.start_time
+        elapsed = time.perf_counter() - self.start_time
         if elapsed >= self.test_duration:
             fps = round(self.frame_count / elapsed, 1)
             # print(f"Benchmark zakończony! Średni FPS: {fps:.2f}")
@@ -304,6 +308,12 @@ class GPUArithmeticTest(Screen):
 
     def on_show(self):
         threading.Thread(target=start_gpu_benchmark, daemon=True).start()
+        self.timer = self.set_interval(0.5, self.chk_res)
+
+    def chk_res(self):
+        if gpu_score is not "N/A":
+            self.timer.stop()
+            self.app.switch_screen("results")
 
 class BenchmarkResults(Screen):
     def __init__(self):  #, cpu_score, ram_score, ethernet: tuple[float, float, float]):
@@ -320,8 +330,8 @@ class BenchmarkResults(Screen):
     def compose(self) -> ComposeResult:
         yield Vertical(
             Label(F"CPU Benchmark Score: {self.cpu_score}"),
-            Label(F"GPU Benchmark Score: {self.gpu_score}"),
             Label(F"RAM Benchmark Score: {self.ram_score}"),
+            Label(F"GPU Benchmark FPS:...{self.gpu_score} FPS"),
             Label(F"Download Rate:.......{self.download} Mbps"),
             Label(F"Upload Rate:.........{self.upload} Mbps"),
             Label(F"Ping:................{self.ping} ms"),
