@@ -1,11 +1,13 @@
 import asyncio
 
-from textual.app import App, ComposeResult
-from textual.widgets import ListItem, ListView, Label  # , Input, Button, ProgressBar, Static
+from textual.app import ComposeResult
+from textual.widgets import ListItem, ListView, Label
 from textual.screen import Screen
-from textual.containers import Vertical, Container
+from textual.containers import Container
 
 from sources.ram_benchmark import *
+import variables as common
+
 
 class RAMConfirm(Screen):
 
@@ -29,10 +31,10 @@ class RAMConfirm(Screen):
 
 class RAMProgress(Screen):
     async def ExecuteRAMBenchmark(self):
-        global ram_score
-        ram_score = await asyncio.to_thread(ram_benchmark)
+        # global common.ram_score
+        common.ram_score = await asyncio.to_thread(ram_benchmark)
         # self.app.switch_screen("results")
-        self.app.switch_screen("results")
+        await self.app.switch_screen("results")
 
     def on_mount(self):
         asyncio.create_task(self.ExecuteRAMBenchmark())

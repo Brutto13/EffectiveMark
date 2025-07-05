@@ -1,6 +1,8 @@
 *.exe
 *.spec
 *.cfg
+*/*.pyc
+
 build/*
 dist/*
 .venv/*

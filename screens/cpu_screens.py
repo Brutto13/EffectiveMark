@@ -1,19 +1,17 @@
 import asyncio
 from sources.cpu_benchmark import *
 
-from textual.app import App, ComposeResult
-from textual.widgets import ListItem, ListView, Label  # , Input, Button, ProgressBar, Static
+from textual.app import ComposeResult
+from textual.widgets import ListItem, ListView, Label
 from textual.screen import Screen
-from textual.containers import Vertical, Container
+from textual.containers import Container
 
-# Globals
-cpu_score: float | str = "N/A"
+import variables as common
+
 
 class CPU_SingleThread_Loading(Screen):
     async def ExecuteCPUBenchmark(self):
-        global cpu_score
-        score, _ = await asyncio.to_thread(raw_cpu_benchmark, iterations=int(2e7))
-        cpu_score = score
+        common.cpu_score, _ = await asyncio.to_thread(raw_cpu_benchmark, iterations=int(2e7))
         del _
         # cpu_score = await asyncio.to_thread(cpu_benchmark, cores=run_threads)
         await self.app.switch_screen("results")
@@ -22,6 +20,7 @@ class CPU_SingleThread_Loading(Screen):
 
     def compose(self) -> ComposeResult:
         yield Container(Label("CPU Benchmark in progress, Please wait..."), id="dialog")
+
 
 class CPU_Select(Screen):
     def compose(self) -> ComposeResult:

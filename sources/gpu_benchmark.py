@@ -3,6 +3,7 @@ import moderngl
 import moderngl_window as mglw
 import numpy as np
 
+import variables as common
 
 def generate_grid_triangles(grid_size=100, quad_size=0.02):
     """
@@ -80,7 +81,7 @@ class GPUStressTest(mglw.WindowConfig):
         self.test_duration = 10
 
     def on_render(self, time1: float, frame_time: float) -> None:
-        global gpu_score
+        # global gpu_score
         self.ctx.clear(0.0, 0.0, 0.0)
         self.vao.render(mode=moderngl.TRIANGLES)
 
@@ -89,7 +90,7 @@ class GPUStressTest(mglw.WindowConfig):
         if elapsed >= self.test_duration:
             fps = round(self.frame_count / elapsed, 1)
             # print(f"Benchmark zakończony! Średni FPS: {fps:.2f}")
-            gpu_score = fps
+            common.gpu_score = fps
             self.wnd.close()
 
 

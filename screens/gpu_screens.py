@@ -1,13 +1,13 @@
 import threading
 
-from textual.app import App, ComposeResult
-from textual.widgets import ListItem, ListView, Label  # , Input, Button, ProgressBar, Static
+from textual.app import ComposeResult
+from textual.widgets import ListItem, ListView, Label
 from textual.screen import Screen
-from textual.containers import Vertical, Container
+from textual.containers import Container
 
 from sources.gpu_benchmark import *
+import variables as common
 
-gpu_score = 0
 
 class GPUSelect(Screen):
     def compose(self) -> ComposeResult:
@@ -27,11 +27,7 @@ class GPUSelect(Screen):
         # elif event.item.id == "llm": self.app.switch_screen("LLMTest")
 
 
-
-
-
 class GPUArithmeticTest(Screen):
-
     def compose(self) -> ComposeResult:
         yield Container(
             Label("GPU Arithmetic Benchmark in progress, Please wait..."),
@@ -43,6 +39,6 @@ class GPUArithmeticTest(Screen):
         self.timer = self.set_interval(0.5, self.chk_res)
 
     def chk_res(self):
-        if gpu_score != "N/A":
+        if common.gpu_score != "N/A":
             self.timer.stop()
             self.app.switch_screen("results")

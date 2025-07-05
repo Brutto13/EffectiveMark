@@ -2,81 +2,31 @@
 from textual.app import App, ComposeResult
 from textual.widgets import ListItem, ListView, Label  # , Input, Button, ProgressBar, Static
 from textual.screen import Screen
-# from textual.reactive import reactive
 from textual.containers import Vertical, Container
 
 # General Imports
 import psutil
 import os
 import sys
-import asyncio
-
-# CPU-related imports
-
-# Ethernet-Related tests
-import speedtest
 
 # GPU-related imports
-import moderngl
-import moderngl_window as mglw
-import threading
 import GPUtil
 
 # Internal files imports
-from sources.gpu_benchmark import *
-from sources.ram_benchmark import *
-from sources.eth_benchmark import *
-
 from screens.cpu_screens import *
 from screens.gpu_screens import *
+from screens.ram_screens import *
+from screens.eth_screens import *
+import variables as common
 
-# globals
+# Constants
 CPU_CORES = os.cpu_count()
 CPU_FREQC = psutil.cpu_freq().current
 RAM_DETEC = round(psutil.virtual_memory().total/(1024**3), 1)
 GPU_NAME0 = GPUtil.getGPUs()[0].name
 
-cpu_score: float | str = "N/A"
-gpu_score: float | str = "N/A"
-ram_score: float | str = "N/A"
-download:  float | str = "N/A"
-upload:    float | str = "N/A"
-ping:      float | str = "N/A"
-
-
-
 # Communications
 run_threads: int = 1
-
-
-class SpeedConfirm(Screen):
-    def compose(self) -> ComposeResult:
-        yield Container(
-            Label("Run Connection Speed Test?"),
-            ListView(
-                ListItem(Label("Yes"), id="Y"),
-                ListItem(Label("No"), id="N"),
-                id="menu-list"
-            ),
-            id="dialog"
-        )
-
-    def on_list_view_selected(self, event):
-        if event.item.id == "Y": self.app.switch_screen("SpeedProgress")
-        elif event.item.id == "N": self.app.switch_screen("StartScreen")
-
-
-class SpeedProgress(Screen):
-    async def ExecuteSpeedTest(self):
-        await asyncio.to_thread(eth_benchmark)
-        self.app.switch_screen("results")
-
-    def on_show(self):
-        asyncio.create_task(self.ExecuteSpeedTest())
-
-    def compose(self) -> ComposeResult:
-        yield Container(Label("Measuring Connection Speed"), id="dialog")
-
 
 class SystemOverview(Screen):
     def compose(self):
@@ -117,13 +67,13 @@ class BenchmarkResults(Screen):
         )
 
     def on_screen_resume(self):
-        global cpu_score, ram_score, download, upload, ping, gpu_score
-        self.cpu_label.update(F"CPU Benchmark Score: {cpu_score}")
-        self.ram_label.update(F"RAM Benchmark Score: {ram_score}")
-        self.gpu_label.update(F"GPU Benchmark FPS:...{gpu_score} FPS")
-        self.download_label.update(F"Download Rate:.......{download} Mbps")
-        self.upload_label.update(F"Upload Rate:.........{upload} Mbps")
-        self.ping_label.update(F"Ping:................{ping} ms")
+        # global cpu_score, ram_score, download, upload, ping, gpu_score
+        self.cpu_label.update(F"CPU Benchmark Score: {common.cpu_score}")
+        self.ram_label.update(F"RAM Benchmark Score: {common.ram_score}")
+        self.gpu_label.update(F"GPU Benchmark FPS:...{common.gpu_score} FPS")
+        self.download_label.update(F"Download Rate:.......{common.download} Mbps")
+        self.upload_label.update(F"Upload Rate:.........{common.upload} Mbps")
+        self.ping_label.update(F"Ping:................{common.ping} ms")
     # def on_show(self):
         # self.cpu_label.update(F"CPU Benchmark Score: {self.cpu_score}")
         # self.ram_label.update(F"RAM Benchmark Score: {self.ram_score}")
@@ -131,6 +81,7 @@ class BenchmarkResults(Screen):
     def on_key(self, event):
         if event.key == "q":
             self.app.switch_screen("StartScreen")
+
 
 class StartScreen(Screen):
     def compose(self) -> ComposeResult:
@@ -163,6 +114,7 @@ class StartScreen(Screen):
         # elif choice=="cpu": self.app.push_screen() #CPU Benchmark
         # elif choice=="ram": self.app.push_screen() #RAM Benchmark
         # elif choice=="off": quit()
+
 
 class LauncherApp(App):
     SCREENS = {
