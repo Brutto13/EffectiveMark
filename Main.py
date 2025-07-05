@@ -1,15 +1,12 @@
-# Unstable packages
-import numpy as np
-import psutil
-import asyncio
-import moderngl
+# UI Imports
 from textual.app import App, ComposeResult
 from textual.widgets import ListItem, ListView, Label, Input, Button, ProgressBar, Static
 from textual.screen import Screen
 from textual.reactive import reactive
 from textual.containers import Vertical, Container
 
-# General Imports (external: psutil)
+# General Imports
+import psutil
 import time
 import os
 import sys
@@ -18,7 +15,7 @@ import asyncio
 
 from math import sin, cos, log, sqrt
 
-# Ethernet-Related tests (external: "speedtest-cli")
+# Ethernet-Related tests
 import speedtest
 
 import multiprocessing as mp
@@ -84,7 +81,7 @@ class CPU_SingleThread_Loading(Screen):
         # cpu_score = await asyncio.to_thread(cpu_benchmark, cores=run_threads)
         self.app.switch_screen("results")
 
-    def on_show(self): asyncio.create_task(self.ExecuteCPUBenchmark())
+    def on_screen_resume(self): asyncio.create_task(self.ExecuteCPUBenchmark())
 
     def compose(self) -> ComposeResult:
         yield Container(Label("CPU Benchmark in progress, Please wait..."), id="dialog")
@@ -139,9 +136,9 @@ class RAMProgress(Screen):
         global ram_score
         ram_score = await asyncio.to_thread(ram_benchmark)
         # self.app.switch_screen("results")
-        self.app.push_screen(BenchmarkResults(cpu_score, ram_score, (download, upload, ping)))
+        self.app.switch_screen("results")
 
-    def on_show(self):
+    def on_mount(self):
         asyncio.create_task(self.ExecuteRAMBenchmark())
 
     def compose(self):
@@ -311,7 +308,7 @@ class GPUArithmeticTest(Screen):
         self.timer = self.set_interval(0.5, self.chk_res)
 
     def chk_res(self):
-        if gpu_score is not "N/A":
+        if gpu_score != "N/A":
             self.timer.stop()
             self.app.switch_screen("results")
 
@@ -319,25 +316,33 @@ class BenchmarkResults(Screen):
     def __init__(self):  #, cpu_score, ram_score, ethernet: tuple[float, float, float]):
         # Ethernet: DWNL-UPLD-PING
         super().__init__()
-        global cpu_score, ram_score, download, upload, ping, gpu_score
-        self.cpu_score = cpu_score
-        self.gpu_score = gpu_score
-        self.ram_score = ram_score
-        self.download  = download
-        self.upload    = upload
-        self.ping      = ping
+        # Initialize label placeholders (they'll be assigned in compose)
+        self.cpu_label = Label(F"CPU Benchmark Score:  N/A")
+        self.ram_label = Label(F"RAM Benchmark Score:  N/A")
+        self.gpu_label = Label(F"GPU Benchmark FPS:..  N/A FPS")
+        self.download_label = Label(F"Download Rate:...... N/A Mbps")
+        self.upload_label = Label(F"Upload Rate:......... N/A Mbps")
+        self.ping_label = Label(F"Ping:............... N/A ms")
 
     def compose(self) -> ComposeResult:
         yield Vertical(
-            Label(F"CPU Benchmark Score: {self.cpu_score}"),
-            Label(F"RAM Benchmark Score: {self.ram_score}"),
-            Label(F"GPU Benchmark FPS:...{self.gpu_score} FPS"),
-            Label(F"Download Rate:.......{self.download} Mbps"),
-            Label(F"Upload Rate:.........{self.upload} Mbps"),
-            Label(F"Ping:................{self.ping} ms"),
+            self.cpu_label,
+            self.ram_label,
+            self.gpu_label,
+            self.download_label,
+            self.upload_label,
+            self.ping_label,
             id="dialog"
         )
 
+    def on_screen_resume(self):
+        global cpu_score, ram_score, download, upload, ping, gpu_score
+        self.cpu_label.update(F"CPU Benchmark Score: {cpu_score}")
+        self.ram_label.update(F"RAM Benchmark Score: {ram_score}")
+        self.gpu_label.update(F"GPU Benchmark FPS:...{gpu_score} FPS")
+        self.download_label.update(F"Download Rate:.......{download} Mbps")
+        self.upload_label.update(F"Upload Rate:.........{upload} Mbps")
+        self.ping_label.update(F"Ping:................{ping} ms")
     # def on_show(self):
         # self.cpu_label.update(F"CPU Benchmark Score: {self.cpu_score}")
         # self.ram_label.update(F"RAM Benchmark Score: {self.ram_score}")
@@ -429,7 +434,7 @@ class LauncherApp(App):
     }
 
     ListView:focus ListItem.--highlight {
-        background: green;
+        background: cadetblue;
         color: black;
     }
     

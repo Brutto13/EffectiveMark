@@ -39,7 +39,7 @@ def force_gpu(func):
 def raw_cpu_benchmark(iterations: int) -> tuple[float, float]:
     scores: list[float] = []
     total: float = 0.0
-    for _ in range(10):
+    for _ in range(2):
         print(_)
         start = time.perf_counter()
         for i in range(int(iterations)):
