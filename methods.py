@@ -1,7 +1,7 @@
 import time
 import multiprocessing as mp
 from math import sin, cos, sqrt, log
-
+import GPUtil
 import pyopencl as cl
 import numpy as np
 import functools
@@ -81,6 +81,7 @@ def get_opencl_device():
             return platform, devs[0]
     raise RuntimeError("No OpenCL device found.")
 
+# gpus = GPUtil.getGPUs()
 # @force_gpu
 # def add_arrays(ctx, queue, a_np, b_np):
 #     assert a_np.shape == b_np.shape

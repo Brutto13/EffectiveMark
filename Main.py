@@ -1,8 +1,8 @@
 # UI Imports
 from textual.app import App, ComposeResult
-from textual.widgets import ListItem, ListView, Label, Input, Button, ProgressBar, Static
+from textual.widgets import ListItem, ListView, Label  # , Input, Button, ProgressBar, Static
 from textual.screen import Screen
-from textual.reactive import reactive
+# from textual.reactive import reactive
 from textual.containers import Vertical, Container
 
 # General Imports
@@ -11,25 +11,26 @@ import time
 import os
 import sys
 import asyncio
-# CPU-related imports
 
-from math import sin, cos, log, sqrt
+# CPU-related imports
 
 # Ethernet-Related tests
 import speedtest
 
-import multiprocessing as mp
-from methods import *
-
 # GPU-related imports
+import GPUtil
 import moderngl
 import moderngl_window as mglw
 import threading
+
+# Internal files imports
+from methods import *
 
 # globals
 CPU_CORES = os.cpu_count()
 CPU_FREQC = psutil.cpu_freq().current
 RAM_DETEC = round(psutil.virtual_memory().total/(1024**3), 1)
+GPU_NAME0 = GPUtil.getGPUs()[0].name
 
 cpu_score: float | str = "N/A"
 ram_score: float | str = "N/A"
@@ -41,6 +42,7 @@ gpu_score: float | str = "N/A"
 
 # Communications
 run_threads: int = 1
+
 
 def eth_benchmark():
     global download
@@ -55,7 +57,7 @@ def eth_benchmark():
 
 
 
-def ram_benchmark(size: int=2e9):
+def ram_benchmark(size: int = 2e9):
     testlist = []
     writestart = time.perf_counter()
     for i in range(int(size)):
@@ -64,7 +66,7 @@ def ram_benchmark(size: int=2e9):
     writetime = writeend-writestart
 
     readstart = time.perf_counter()
-    x = sum(testlist)
+    _ = sum(testlist)
     readend = time.perf_counter()
 
     readtime = readend-readstart
@@ -72,6 +74,8 @@ def ram_benchmark(size: int=2e9):
     return round((1e5/writetime)*(1e5/readstart), 1)
 
 # CPU Tests
+
+
 class CPU_SingleThread_Loading(Screen):
     async def ExecuteCPUBenchmark(self):
         global cpu_score
@@ -79,7 +83,7 @@ class CPU_SingleThread_Loading(Screen):
         cpu_score = score
         del _
         # cpu_score = await asyncio.to_thread(cpu_benchmark, cores=run_threads)
-        self.app.switch_screen("results")
+        await self.app.switch_screen("results")
 
     def on_screen_resume(self): asyncio.create_task(self.ExecuteCPUBenchmark())
 
@@ -164,7 +168,7 @@ class SpeedConfirm(Screen):
 class SpeedProgress(Screen):
     async def ExecuteSpeedTest(self):
         await asyncio.to_thread(eth_benchmark)
-        self.app.push_screen(BenchmarkResults(cpu_score, ram_score, (download, upload, ping)))
+        self.app.switch_screen("results")
 
     def on_show(self):
         asyncio.create_task(self.ExecuteSpeedTest())
@@ -179,6 +183,7 @@ class SystemOverview(Screen):
             Label(F"CPU Cores Detected: {CPU_CORES}"),
             Label(F"CPU Stock Frequency: {CPU_FREQC}MHz"),
             Label(F"RAM Detected: {RAM_DETEC}GB"),
+            Label(F"GPU0 Name: {GPU_NAME0}"),
             id="dialog"
         )
 
@@ -311,6 +316,7 @@ class GPUArithmeticTest(Screen):
         if gpu_score != "N/A":
             self.timer.stop()
             self.app.switch_screen("results")
+
 
 class BenchmarkResults(Screen):
     def __init__(self):  #, cpu_score, ram_score, ethernet: tuple[float, float, float]):
