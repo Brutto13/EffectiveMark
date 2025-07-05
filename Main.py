@@ -7,7 +7,6 @@ from textual.containers import Vertical, Container
 
 # General Imports
 import psutil
-import time
 import os
 import sys
 import asyncio
@@ -18,13 +17,18 @@ import asyncio
 import speedtest
 
 # GPU-related imports
-import GPUtil
 import moderngl
 import moderngl_window as mglw
 import threading
+import GPUtil
 
 # Internal files imports
-from methods import *
+from sources.gpu_benchmark import *
+from sources.ram_benchmark import *
+from sources.eth_benchmark import *
+
+from screens.cpu_screens import *
+from screens.gpu_screens import *
 
 # globals
 CPU_CORES = os.cpu_count()
@@ -33,120 +37,17 @@ RAM_DETEC = round(psutil.virtual_memory().total/(1024**3), 1)
 GPU_NAME0 = GPUtil.getGPUs()[0].name
 
 cpu_score: float | str = "N/A"
+gpu_score: float | str = "N/A"
 ram_score: float | str = "N/A"
 download:  float | str = "N/A"
 upload:    float | str = "N/A"
 ping:      float | str = "N/A"
 
-gpu_score: float | str = "N/A"
+
 
 # Communications
 run_threads: int = 1
 
-
-def eth_benchmark():
-    global download
-    global upload
-    global ping
-
-    st = speedtest.Speedtest()
-    st.get_best_server()
-    download = round(st.download()/1e6, 1)  # Unit: Mbps
-    upload = round(st.upload()/1e6, 1)  # Unit: Mbps
-    ping = round(st.results.ping, 1)  # Unit: ms
-
-
-
-def ram_benchmark(size: int = 2e9):
-    testlist = []
-    writestart = time.perf_counter()
-    for i in range(int(size)):
-        testlist.append(7)
-    writeend = time.perf_counter()
-    writetime = writeend-writestart
-
-    readstart = time.perf_counter()
-    _ = sum(testlist)
-    readend = time.perf_counter()
-
-    readtime = readend-readstart
-
-    return round((1e5/writetime)*(1e5/readstart), 1)
-
-# CPU Tests
-
-
-class CPU_SingleThread_Loading(Screen):
-    async def ExecuteCPUBenchmark(self):
-        global cpu_score
-        score, _ = await asyncio.to_thread(raw_cpu_benchmark, iterations=int(2e7))
-        cpu_score = score
-        del _
-        # cpu_score = await asyncio.to_thread(cpu_benchmark, cores=run_threads)
-        await self.app.switch_screen("results")
-
-    def on_screen_resume(self): asyncio.create_task(self.ExecuteCPUBenchmark())
-
-    def compose(self) -> ComposeResult:
-        yield Container(Label("CPU Benchmark in progress, Please wait..."), id="dialog")
-
-class CPU_Select(Screen):
-    def compose(self) -> ComposeResult:
-        # items = [ListItem(Label(str(x+1)), id="a"+str(x+1)) for x in range(CPU_CORES-1, -1, -1)]
-        # items.append(ListItem(Label("Cancel"), id="exit"))
-        yield Container(
-            Label("Select number of threads"),
-            ListView(
-                ListItem(Label("Single Thread Benchmark"), id='single'),
-                # ListItem(Label("Full CPU benchmark"), id='full'),
-                ListItem(Label("Cancel"), id="exit"),
-                id="menu-list"),
-            id="dialog",
-        )
-
-    def on_key(self, event):
-        if event.key == "q":
-            self.app.switch_screen("StartScreen")
-
-    def on_list_view_selected(self, event):
-        if event.item.id == "exit": self.app.switch_screen("StartScreen")
-        elif event.item.id == "single": self.app.switch_screen("InProgress")
-        elif event.item.id == "full": self.app.switch_screen("FullProgress")
-
-
-# RAM tests
-class RAMConfirm(Screen):
-
-    def compose(self) -> ComposeResult:
-        yield Container(
-            Label("Run RAM Benchmark"),
-            ListView(
-                ListItem(Label("Yes"), id="Y"),
-                ListItem(Label("No"), id="N"),
-                id="menu-list"
-            ),
-            id="dialog"
-        )
-
-    def on_list_view_selected(self, event):
-        if event.item.id == "Y":
-            self.app.switch_screen("RAMProgress")
-            # asyncio.create_task(self.ExecuteRAMBenchmark())
-        elif event.item.id == "N":
-            self.app.switch_screen("StartScreen")
-
-class RAMProgress(Screen):
-    async def ExecuteRAMBenchmark(self):
-        global ram_score
-        ram_score = await asyncio.to_thread(ram_benchmark)
-        # self.app.switch_screen("results")
-        self.app.switch_screen("results")
-
-    def on_mount(self):
-        asyncio.create_task(self.ExecuteRAMBenchmark())
-
-    def compose(self):
-        yield Container(Label("RAM Benchmark in progress, Please wait..."), id="dialog")
 
 class SpeedConfirm(Screen):
     def compose(self) -> ComposeResult:
@@ -190,132 +91,6 @@ class SystemOverview(Screen):
     def on_key(self, event):
         if event.key == "q":
             self.app.pop_screen()
-
-
-class GPUSelect(Screen):
-    def compose(self) -> ComposeResult:
-        yield Container(
-            Label("Run GPU Benchmark"),
-            ListView(
-                ListItem(Label("Yes"), id="Y"),
-                ListItem(Label("No"), id="N"),
-                id="menu-list"
-            ),
-            id="dialog"
-        )
-
-    def on_list_view_selected(self, event):
-        if event.item.id == "Y": self.app.switch_screen("GPUArithmeticTest")
-        elif event.item.id == "N": self.app.switch_screen("StartScreen")
-        # elif event.item.id == "llm": self.app.switch_screen("LLMTest")
-
-def generate_grid_triangles(grid_size=100, quad_size=0.02):
-    """
-    Tworzy siatkę quadów, każdy quad to 2 trójkąty, razem 6 wierzchołków na quad.
-    grid_size - liczba quadów w jednym wierszu/kolumnie
-    quad_size - wielkość boku quada
-    """
-    vertices = []
-    start = -1.0
-    for y in range(grid_size):
-        for x in range(grid_size):
-            # pozycja lewego dolnego rogu quada
-            x0 = start + x * quad_size
-            y0 = start + y * quad_size
-            x1 = x0 + quad_size
-            y1 = y0 + quad_size
-
-            # dwa trójkąty na quad
-            vertices.extend([
-                x0, y0,
-                x1, y0,
-                x0, y1,
-
-                x1, y0,
-                x1, y1,
-                x0, y1,
-            ])
-    return np.array(vertices, dtype='f4')
-
-class GPUStressTest(mglw.WindowConfig):
-    # gl_version = (3, 3)
-    title = "EffectiveMark V1.2 - GPU Render Test"
-    window_size = (900, 850)
-    resource_dir = "."
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        vertex_shader = """
-                #version 330
-                in vec2 in_position;
-                void main() {
-                    gl_Position = vec4(in_position, 0.0, 1.0);
-                }
-                """
-
-        fragment_shader = """
-                #version 330
-                out vec4 f_color;
-
-                // Funkcja obciążająca GPU
-                float heavyCalc(float x) {
-                    float v = x;
-                    for (int i = 0; i < 10000; i++) {
-                        v = cos(log(v+1)) + sin(v*1.1) + abs(v)+1;
-                        
-                    }
-                    return v;
-                }
-
-                void main() {
-                    float val = heavyCalc(gl_FragCoord.x * 0.01);
-                    f_color = vec4(val, val * 0.5, 1.0 - val, 1.0);
-                }
-                """
-
-        self.prog = self.ctx.program(vertex_shader=vertex_shader, fragment_shader=fragment_shader)
-
-        vertices = generate_grid_triangles(grid_size=100, quad_size=0.02)
-        self.vbo = self.ctx.buffer(vertices.tobytes())
-        self.vao = self.ctx.simple_vertex_array(self.prog, self.vbo, "in_position")
-
-        self.frame_count = 0
-        self.start_time = time.perf_counter()
-        self.test_duration = 10
-
-    def on_render(self, time1: float, frame_time: float) -> None:
-        global gpu_score
-        self.ctx.clear(0.0, 0.0, 0.0)
-        self.vao.render(mode=moderngl.TRIANGLES)
-
-        self.frame_count += 1
-        elapsed = time.perf_counter() - self.start_time
-        if elapsed >= self.test_duration:
-            fps = round(self.frame_count / elapsed, 1)
-            # print(f"Benchmark zakończony! Średni FPS: {fps:.2f}")
-            gpu_score = fps
-            self.wnd.close()
-
-
-def start_gpu_benchmark(): mglw.run_window_config(GPUStressTest)
-
-
-class GPUArithmeticTest(Screen):
-
-    def compose(self) -> ComposeResult:
-        yield Container(
-            Label("GPU Arithmetic Benchmark in progress, Please wait..."),
-            id="dialog"
-        )
-
-    def on_show(self):
-        threading.Thread(target=start_gpu_benchmark, daemon=True).start()
-        self.timer = self.set_interval(0.5, self.chk_res)
-
-    def chk_res(self):
-        if gpu_score != "N/A":
-            self.timer.stop()
-            self.app.switch_screen("results")
 
 
 class BenchmarkResults(Screen):

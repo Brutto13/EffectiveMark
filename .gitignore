@@ -1,0 +1,7 @@
+*.exe
+*.spec
+*.cfg
+build/*
+dist/*
+.venv/*
+.idea/*
