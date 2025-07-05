@@ -35,16 +35,22 @@ def force_gpu(func):
         return func(ctx, queue, *args, **kwargs)
     return wrapper
 
-def raw_cpu_benchmark(iterations: int) -> tuple[float, float]:
-    total = 0.0
-    start = time.perf_counter()
-    for i in range(int(iterations)):
-        total += sin(cos(i)+sqrt(log(i+1)))
-    end = time.perf_counter()
-    elapsed = end-start
 
-    score = round(iterations/(1000*elapsed), 1)
-    return score, total
+def raw_cpu_benchmark(iterations: int) -> tuple[float, float]:
+    scores: list[float] = []
+    total: float = 0.0
+    for _ in range(10):
+        print(_)
+        start = time.perf_counter()
+        for i in range(int(iterations)):
+            total += sin(cos(i)+sqrt(log(i+1)))
+        end = time.perf_counter()
+        elapsed = end-start
+        score = round(iterations/(1000*elapsed), 1)
+        scores.append(score)
+
+    final_score = round(sum(scores)/len(scores), 1)
+    return final_score, total
 
 
 def cpu_benchmark(*, iterations=2e9, cores=1):
@@ -102,12 +108,14 @@ def get_opencl_device():
 #     cl.enqueue_copy(queue, res_np, res_g)
 #     return res_np
 
+
 if __name__ == "__main__":
-    print(GPU_ERROR)
-    print(device)
-    a = np.random.rand(1024**2*64).astype(np.float32)
-    b = np.random.rand(1024**2*64).astype(np.float32)
-
-
-    result = add_arrays(a, b)
-    print(result)
+    # print(GPU_ERROR)
+    # print(device)
+    # a = np.random.rand(1024**2*64).astype(np.float32)
+    # b = np.random.rand(1024**2*64).astype(np.float32)
+    #
+    #
+    # result = add_arrays(a, b)
+    # print(result)
+    raw_cpu_benchmark(2e7)

@@ -82,7 +82,7 @@ class CPU_SingleThread_Loading(Screen):
         cpu_score = score
         del _
         # cpu_score = await asyncio.to_thread(cpu_benchmark, cores=run_threads)
-        self.app.push_screen(BenchmarkResults(cpu_score, ram_score, (download, upload, ping)))
+        self.app.switch_screen("results")
 
     def on_show(self): asyncio.create_task(self.ExecuteCPUBenchmark())
 
