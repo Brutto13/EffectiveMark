@@ -3,6 +3,7 @@
 *.cfg
 */*.pyc
 
+__pycache__/
 build/*
 dist/*
 .venv/*
