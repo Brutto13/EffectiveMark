@@ -20,6 +20,7 @@ from screens.cpu_screens import *
 from screens.gpu_screens import *
 from screens.ram_screens import *
 from screens.eth_screens import *
+from screens.hdd_screens import *
 import variables as common
 
 # Constants
@@ -58,12 +59,16 @@ class BenchmarkResults(Screen):
         self.download_label = Label(F"Download Rate:...... N/A Mbps")
         self.upload_label = Label(F"Upload Rate:......... N/A Mbps")
         self.ping_label = Label(F"Ping:............... N/A ms")
+        self.hdd_read_label = Label(F"HDD Read Rate:...... N/A MB/s")
+        self.hdd_write_label = Label(F"HDD Write Rate:..... N/A MB/s")
 
     def compose(self) -> ComposeResult:
         yield Vertical(
             self.cpu_label,
             self.ram_label,
             self.gpu_label,
+            self.hdd_read_label,
+            self.hdd_write_label,
             self.download_label,
             self.upload_label,
             self.ping_label,
@@ -77,7 +82,10 @@ class BenchmarkResults(Screen):
         self.gpu_label.update(F"GPU Benchmark FPS:.. {common.gpu_score} FPS")
         self.download_label.update(F"Download Rate:...... {common.download} Mbps")
         self.upload_label.update(F"Upload Rate:........ {common.upload} Mbps")
-        self.ping_label.update(F"Ping:............... {common.ping} ms")
+        self.ping_label.update(F"Ping:............... {common.ping} ms"),
+        self.hdd_read_label.update(F"HDD Read Rate:...... {round(common.hdd_read, 1)} MB/s")
+        self.hdd_write_label.update(F"HDD Write Rate:..... {round(common.hdd_write, 1)} MB/s")
+
     # def on_show(self):
         # self.cpu_label.update(F"CPU Benchmark Score: {self.cpu_score}")
         # self.ram_label.update(F"RAM Benchmark Score: {self.ram_score}")
@@ -96,8 +104,9 @@ class StartScreen(Screen):
             ListItem(Label("3. Run RAM Benchmark"), id="ram"),
             ListItem(Label("4. Run GPU Benchmark"), id="gpu"),
             ListItem(Label("5. Run Connection Benchmark"), id="eth0"),
-            ListItem(Label("6. Benchmark Results"), id="res"),
-            ListItem(Label("7. Exit"), id="off"),
+            ListItem(Label("6. Run HDD Benchmark"), id="hdd"),
+            ListItem(Label("7. Benchmark Results"), id="res"),
+            ListItem(Label("8. Exit"), id="off"),
             id="menu-list"
         ),
         id="dialog")
@@ -113,7 +122,9 @@ class StartScreen(Screen):
             elif choice == "res":  self.app.switch_screen("results")
             elif choice == "eth0": self.app.switch_screen("SpeedConfirm")
             elif choice == "gpu":  self.app.switch_screen("GPUSelect")
+            elif choice == "hdd":  self.app.switch_screen("HDDConfirm")
             elif choice == "off":  sys.exit(0)
+
 
 class LauncherApp(App):
     SCREENS = {
@@ -127,7 +138,10 @@ class LauncherApp(App):
         "SpeedConfirm": SpeedConfirm,
         "SpeedProgress": SpeedProgress,
         "GPUArithmeticTest": GPUArithmeticTest,
-        "GPUSelect": GPUSelect
+        "GPUSelect": GPUSelect,
+        "HDDConfirm": HDDConfirm,
+        "hdd-benchmark": HDDBenchmark,
+        "hdd-error": HDDPermissionError
     }
 
     CSS = """
@@ -144,10 +158,10 @@ class LauncherApp(App):
         padding: 2;
         align: center middle;
         width: 50%;
-        height: 40%;
+        height: 50%;
     }
     
-    StartScreen, SystemOverview, CPU_Select, CPU_SingleThread_Loading, RAMConfirm, RAMProgress, SpeedConfirm, SpeedProgress, BenchmarkResults, GPUSelect, GPUArithmeticTest {
+    StartScreen, SystemOverview, CPU_Select, CPU_SingleThread_Loading, RAMConfirm, RAMProgress, SpeedConfirm, SpeedProgress, BenchmarkResults, GPUSelect, GPUArithmeticTest, HDDConfirm, HDDBenchmark, HDDPermissionError {
         align: center middle;
     }
 
