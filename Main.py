@@ -9,6 +9,9 @@ import psutil
 import os
 import sys
 
+# CPU-related imports
+import cpuinfo
+
 # GPU-related imports
 import GPUtil
 
@@ -20,6 +23,7 @@ from screens.eth_screens import *
 import variables as common
 
 # Constants
+CPU_NAME0 = cpuinfo.get_cpu_info().get("brand_raw", "Unknown")
 CPU_CORES = os.cpu_count()
 CPU_FREQC = psutil.cpu_freq().current
 RAM_DETEC = round(psutil.virtual_memory().total/(1024**3), 1)
@@ -31,10 +35,10 @@ run_threads: int = 1
 class SystemOverview(Screen):
     def compose(self):
         yield Vertical(
-            Label(F"CPU Cores Detected: {CPU_CORES}"),
-            Label(F"CPU Stock Frequency: {CPU_FREQC}MHz"),
-            Label(F"RAM Detected: {RAM_DETEC}GB"),
-            Label(F"GPU0 Name: {GPU_NAME0}"),
+            Label(F"CPU Name:  {CPU_NAME0}"),
+            Label(F"CPU Cores: {CPU_CORES}"),
+            Label(F"GPU Name:  {GPU_NAME0}"),
+            Label(F"RAM Total: {RAM_DETEC} GB"),
             id="dialog"
         )
 
@@ -70,10 +74,10 @@ class BenchmarkResults(Screen):
         # global cpu_score, ram_score, download, upload, ping, gpu_score
         self.cpu_label.update(F"CPU Benchmark Score: {common.cpu_score}")
         self.ram_label.update(F"RAM Benchmark Score: {common.ram_score}")
-        self.gpu_label.update(F"GPU Benchmark FPS:...{common.gpu_score} FPS")
-        self.download_label.update(F"Download Rate:.......{common.download} Mbps")
-        self.upload_label.update(F"Upload Rate:.........{common.upload} Mbps")
-        self.ping_label.update(F"Ping:................{common.ping} ms")
+        self.gpu_label.update(F"GPU Benchmark FPS:.. {common.gpu_score} FPS")
+        self.download_label.update(F"Download Rate:...... {common.download} Mbps")
+        self.upload_label.update(F"Upload Rate:........ {common.upload} Mbps")
+        self.ping_label.update(F"Ping:............... {common.ping} ms")
     # def on_show(self):
         # self.cpu_label.update(F"CPU Benchmark Score: {self.cpu_score}")
         # self.ram_label.update(F"RAM Benchmark Score: {self.ram_score}")
@@ -110,11 +114,6 @@ class StartScreen(Screen):
             elif choice == "eth0": self.app.switch_screen("SpeedConfirm")
             elif choice == "gpu":  self.app.switch_screen("GPUSelect")
             elif choice == "off":  sys.exit(0)
-
-        # elif choice=="cpu": self.app.push_screen() #CPU Benchmark
-        # elif choice=="ram": self.app.push_screen() #RAM Benchmark
-        # elif choice=="off": quit()
-
 
 class LauncherApp(App):
     SCREENS = {
@@ -176,14 +175,6 @@ class LauncherApp(App):
     def on_mount(self):
         self.push_screen(StartScreen())
 
-    # def compose(self) -> ComposeResult:
-    #     yield Container(StartScreen(), id="dialog")
 
 if __name__ == "__main__":
-    import multiprocessing as mp
-    mp.set_start_method("spawn")
-    mp.freeze_support()
     LauncherApp().run()
-    # app = LauncherApp()
-    # result = app.run()
-
