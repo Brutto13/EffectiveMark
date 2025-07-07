@@ -43,7 +43,9 @@ CPU_NAME0 = get_cpu_name()
 CPU_CORES = os.cpu_count()
 CPU_FREQC = psutil.cpu_freq().current
 RAM_DETEC = round(psutil.virtual_memory().total/(1024**3), 1)
-GPU_NAME0 = GPUtil.getGPUs()[0].name
+try: GPU_NAME0 = GPUtil.getGPUs()[0].name
+except IndexError: GPU_NAME0 = F"Integrated Graphics ({CPU_NAME0})"
+
 
 # Communications
 run_threads: int = 1
@@ -195,8 +197,9 @@ class LauncherApp(App):
     }
 
     ListView:focus ListItem.--highlight {
-        background: cadetblue;
-        color: black;
+        /* background: cadetblue;*/
+        color: white;
+        /* color: black;*/
     }
     
     """
