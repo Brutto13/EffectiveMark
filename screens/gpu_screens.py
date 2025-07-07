@@ -35,7 +35,8 @@ class GPUArithmeticTest(Screen):
         )
 
     def on_show(self):
-        threading.Thread(target=start_gpu_benchmark, daemon=True).start()
+        # threading.Thread(target=start_gpu_benchmark, daemon=True).start()
+        self.app.call_later(start_gpu_benchmark)
         self.timer = self.set_interval(0.5, self.chk_res)
 
     def chk_res(self):

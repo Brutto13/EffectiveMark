@@ -1,6 +1,6 @@
 # Code for COMMON global variables
 
-_init = "N/A"
+_init = 0
 
 cpu_score = _init
 ram_score = _init

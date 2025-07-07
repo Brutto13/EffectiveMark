@@ -10,7 +10,7 @@ import os
 import sys
 
 # CPU-related imports
-import cpuinfo
+import subprocess
 
 # GPU-related imports
 import GPUtil
@@ -23,8 +23,23 @@ from screens.eth_screens import *
 from screens.hdd_screens import *
 import variables as common
 
+import subprocess
+
+try: print(sys._MEIPASS)
+except: pass
+
+def get_cpu_name():
+    try:
+        output = subprocess.check_output(
+            "wmic cpu get Name", shell=True
+        ).decode(errors="ignore").split("\n")[1].strip()
+        return output or "Unknown"
+    except Exception as e:
+        return f"Error: {e}"
+
+
 # Constants
-CPU_NAME0 = cpuinfo.get_cpu_info().get("brand_raw", "Unknown")
+CPU_NAME0 = get_cpu_name()
 CPU_CORES = os.cpu_count()
 CPU_FREQC = psutil.cpu_freq().current
 RAM_DETEC = round(psutil.virtual_memory().total/(1024**3), 1)
@@ -97,7 +112,7 @@ class BenchmarkResults(Screen):
 
 class StartScreen(Screen):
     def compose(self) -> ComposeResult:
-        yield Label("Effective Mark V1.2")
+        yield Label("Effective Mark V1.0")
         yield Container(ListView(
             ListItem(Label("1. System Overview"), id="sys"),
             ListItem(Label("2. Run CPU Benchmark"), id="cpu"),

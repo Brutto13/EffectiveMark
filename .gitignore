@@ -2,7 +2,7 @@
 *.spec
 *.cfg
 */*.pyc
-
+command.txt
 __pycache__/
 build/*
 dist/*

@@ -39,4 +39,4 @@ so it's partially depends on CPU.
 ### Overview
 This test generates 1GB-sized content and measures write and read time.
 Then calculates read and write rates. 
-WARNING: Most of the time takes content generation!
+**WARNING: Most of the time takes content generation!**

@@ -1,3 +1,4 @@
+import sys
 import time
 import moderngl
 import moderngl_window as mglw
@@ -37,8 +38,10 @@ def generate_grid_triangles(grid_size=100, quad_size=0.02):
 class GPUStressTest(mglw.WindowConfig):
     # gl_version = (3, 3)
     title = "EffectiveMark V1.2 - GPU Render Test"
-    window_size = (900, 850)
-    resource_dir = "."
+    window_size = (1920, 1080)
+
+    try: resource_dir = sys._MEIPASS
+    except: resource_dir = '.'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
