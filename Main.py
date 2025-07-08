@@ -25,8 +25,6 @@ import variables as common
 
 import subprocess
 
-try: print(sys._MEIPASS)
-except: pass
 
 def get_cpu_name():
     try:
@@ -35,7 +33,7 @@ def get_cpu_name():
         ).decode(errors="ignore").split("\n")[1].strip()
         return output or "Unknown"
     except Exception as e:
-        return f"Error: {e}"
+        return "Not available"
 
 
 # Constants
@@ -43,12 +41,17 @@ CPU_NAME0 = get_cpu_name()
 CPU_CORES = os.cpu_count()
 CPU_FREQC = psutil.cpu_freq().current
 RAM_DETEC = round(psutil.virtual_memory().total/(1024**3), 1)
-try: GPU_NAME0 = GPUtil.getGPUs()[0].name
-except IndexError: GPU_NAME0 = F"Integrated Graphics ({CPU_NAME0})"
+
+# Try to get GPU info. IGFX fallback on error
+try:
+    GPU_NAME0 = GPUtil.getGPUs()[0].name
+
+except IndexError:
+    GPU_NAME0 = F"Integrated Graphics"
 
 
 # Communications
-run_threads: int = 1
+# run_threads: int = 1
 
 class SystemOverview(Screen):
     def compose(self):
@@ -66,18 +69,18 @@ class SystemOverview(Screen):
 
 
 class BenchmarkResults(Screen):
-    def __init__(self):  #, cpu_score, ram_score, ethernet: tuple[float, float, float]):
+    def __init__(self):
         # Ethernet: DWNL-UPLD-PING
         super().__init__()
         # Initialize label placeholders (they'll be assigned in compose)
-        self.cpu_label = Label(F"CPU Benchmark Score:  N/A")
-        self.ram_label = Label(F"RAM Benchmark Score:  N/A")
-        self.gpu_label = Label(F"GPU Benchmark FPS:..  N/A FPS")
-        self.download_label = Label(F"Download Rate:...... N/A Mbps")
-        self.upload_label = Label(F"Upload Rate:......... N/A Mbps")
-        self.ping_label = Label(F"Ping:............... N/A ms")
-        self.hdd_read_label = Label(F"HDD Read Rate:...... N/A MB/s")
-        self.hdd_write_label = Label(F"HDD Write Rate:..... N/A MB/s")
+        self.cpu_label = Label()
+        self.ram_label = Label()
+        self.gpu_label = Label()
+        self.download_label = Label()
+        self.upload_label = Label()
+        self.ping_label = Label()
+        self.hdd_read_label = Label()
+        self.hdd_write_label = Label()
 
     def compose(self) -> ComposeResult:
         yield Vertical(
@@ -120,8 +123,8 @@ class StartScreen(Screen):
             ListItem(Label("2. Run CPU Benchmark"), id="cpu"),
             ListItem(Label("3. Run RAM Benchmark"), id="ram"),
             ListItem(Label("4. Run GPU Benchmark"), id="gpu"),
-            ListItem(Label("5. Run Connection Benchmark"), id="eth0"),
-            ListItem(Label("6. Run HDD Benchmark"), id="hdd"),
+            ListItem(Label("5. Run Internet Speed Test"), id="eth0"),
+            ListItem(Label("6. Run HDD Read/Write Speed test"), id="hdd"),
             ListItem(Label("7. Benchmark Results"), id="res"),
             ListItem(Label("8. Exit"), id="off"),
             id="menu-list"
@@ -140,7 +143,7 @@ class StartScreen(Screen):
             elif choice == "eth0": self.app.switch_screen("SpeedConfirm")
             elif choice == "gpu":  self.app.switch_screen("GPUSelect")
             elif choice == "hdd":  self.app.switch_screen("HDDConfirm")
-            elif choice == "off":  sys.exit(0)
+            elif choice == "off":  self.app.exit()
 
 
 class LauncherApp(App):
@@ -164,8 +167,8 @@ class LauncherApp(App):
     CSS = """
     
     Screen {
-        background: #3C3C3C;
-        /*background: blue;*/
+        /*background: #3C3C3C;*/
+        background: blue;
         
     }
     

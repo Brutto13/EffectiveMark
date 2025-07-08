@@ -7,15 +7,11 @@ def hdd_benchmark(size_gb=1):
     size: int = round(size_gb * (1024**3))
     content: str = ""
 
-    for _ in range(size):
-        # print(F"Iteration: {_}", end='\r')
-        content += "a"
-
     # Write Test
     try:
         with open("1gb-file", "x") as file:
             write_start = time.perf_counter()
-            file.write(content)
+            file.write(content*size)
             write_end = time.perf_counter()
     except PermissionError: return False, False  # Return Error Flag
 

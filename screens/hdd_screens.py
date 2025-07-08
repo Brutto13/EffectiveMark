@@ -42,7 +42,7 @@ class HDDPermissionError(Screen):
 
 class HDDBenchmark(Screen):
     async def run_benchmark(self):
-        common.hdd_read, common.hdd_write = await asyncio.to_thread(hdd_benchmark, size_gb=0.1)
+        common.hdd_read, common.hdd_write = await asyncio.to_thread(hdd_benchmark, size_gb=1)
         if not common.hdd_read: await self.app.switch_screen("hdd-error")
         else: await self.app.switch_screen("results")
 
