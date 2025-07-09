@@ -1,12 +1,13 @@
 # Code for COMMON global variables
 
-_init = 0
+init = 0
 
-cpu_score = _init
-ram_score = _init
-gpu_score = _init
-download = _init
-upload = _init
-ping = _init
-hdd_read = _init
-hdd_write = _init
+cpu_score = init
+cpu_pcore = []
+ram_score = init
+gpu_score = init
+download = init
+upload = init
+ping = init
+hdd_read = init
+hdd_write = init

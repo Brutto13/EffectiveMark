@@ -80,7 +80,7 @@ class EthernetResults(Screen):
     def on_screen_resume(self):
         self.download_label.update(F"Download Rate: {common.download} Mbps")
         self.upload_label.update(F"Upload Rate:.. {common.upload} Mbps")
-        self.ping_label.update(F"Ping:......... {common.ping} Mbps")
+        self.ping_label.update(F"Ping:......... {common.ping} ms")
 
     def on_key(self, event):
         if event.key == 'q':

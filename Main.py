@@ -1,13 +1,8 @@
 # UI Imports
-from textual.app import App, ComposeResult
-from textual.widgets import ListItem, ListView, Label  # , Input, Button, ProgressBar, Static
-from textual.screen import Screen
-from textual.containers import Vertical, Container
 
 # General Imports
 import psutil
 import os
-import sys
 
 # CPU-related imports
 import subprocess
@@ -22,9 +17,6 @@ from screens.ram_screens import *
 from screens.eth_screens import *
 from screens.hdd_screens import *
 from screens.results_screen import *
-import variables as common
-
-import subprocess
 
 
 def get_cpu_name():
@@ -33,7 +25,7 @@ def get_cpu_name():
             "wmic cpu get Name", shell=True
         ).decode(errors="ignore").split("\n")[1].strip()
         return output or "Unknown"
-    except Exception as e:
+    except Exception:
         return "Not available"
 
 
@@ -58,8 +50,8 @@ class SystemOverview(Screen):
     def compose(self):
         yield Vertical(
             Label(F"CPU Name:  {CPU_NAME0}"),
-            Label(F"CPU Cores: {CPU_CORES}"),
             Label(F"GPU Name:  {GPU_NAME0}"),
+            Label(F"CPU Cores: {CPU_CORES}"),
             Label(F"RAM Total: {RAM_DETEC} GB"),
             id="dialog"
         )
@@ -67,8 +59,6 @@ class SystemOverview(Screen):
     def on_key(self, event):
         if event.key == "q":
             self.app.pop_screen()
-
-
 
 
 class StartScreen(Screen):
@@ -107,6 +97,7 @@ class LauncherApp(App):
         "StartScreen": StartScreen,
         "SystemOverview": SystemOverview,
         "InProgress": CPU_SingleThread_Loading,
+        "FullProgress": CPU_MultiThread_Loading,
         "results": BenchmarkResults,
         "CPUConfirm": CPU_Select,
         "RAMConfirm": RAMConfirm,
@@ -142,7 +133,7 @@ class LauncherApp(App):
         height: 50%;
     }
     
-    StartScreen, SystemOverview, CPU_Select, CPU_SingleThread_Loading, RAMConfirm, RAMProgress, SpeedConfirm,
+    StartScreen, SystemOverview, CPU_Select, CPU_SingleThread_Loading, CPU_MultipleThread_Loading, RAMConfirm, RAMProgress, SpeedConfirm,
     SpeedProgress, BenchmarkResults, GPUSelect, GPUArithmeticTest, HDDConfirm, HDDBenchmark, HDDPermissionError,
     CPUResults, GPUResults, RAMResults, HDDResults, EthernetResults {
         align: center middle;
