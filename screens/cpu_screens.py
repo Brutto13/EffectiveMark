@@ -1,7 +1,8 @@
 import asyncio
 import os
-import threading
 
+from functools import partial
+from multiprocessing import Process, freeze_support, Manager
 from sources.cpu_benchmark import *
 
 from textual.app import ComposeResult
@@ -24,15 +25,16 @@ class CPU_SingleThread_Loading(Screen):
     def compose(self) -> ComposeResult:
         yield Container(Label("CPU Benchmark in progress, Please wait..."), id="dialog")
 
+def worker(scores):
+    start = time.perf_counter()
+    for i in range(int(2e7)):
+        result = sin(i)+cos(i)-log(sqrt(i+1))
+    end = time.perf_counter()
+    elapsed = end - start
+    score = round(1000/elapsed, 1)
+    scores.append(score)
 
 class CPU_MultiThread_Loading(Screen):
-    def __init__(self):
-        super().__init__()
-        self.num_proc = os.cpu_count()
-        self.threads_done = 0
-        self.done_event = threading.Event()
-        self.lock = threading.Lock()
-
     def compose(self) -> ComposeResult:
         yield Container(
             Label("CPU Multi-Threading Benchmark in progress, please wait..."),
@@ -40,27 +42,23 @@ class CPU_MultiThread_Loading(Screen):
         )
 
     def on_screen_resume(self):
-        self.threads_done = 0
-        self.done_event.clear()
+        self.manager = Manager()
+        self.shared_scores = self.manager.list()
+        self.timer = self.set_interval(0.5, self.chk_value)
+        self.launch_processes()
 
-        for _ in range(self.num_proc):
-            threading.Thread(target=self.worker, daemon=True).start()
+    def launch_processes(self):
+        for _ in range(os.cpu_count()):
+            p = Process(target=worker, args=(self.shared_scores,))
+            p.start()
 
-        # Monitor completion
-        threading.Thread(target=self.watchdog, daemon=True).start()
+    def chk_value(self):
+        if len(self.shared_scores) == os.cpu_count():
+            common.cpu_pcore[:] = list(self.shared_scores)
+            self.timer.stop()
+            # self.app.call_from_thread(partial(self.app.switch_screen, "cpu_results"))
+            self.app.switch_screen("cpu_results")
 
-    def worker(self):
-        score, _ = raw_cpu_benchmark(2e7)
-        common.cpu_pcore.append(score)
-        del _
-        with self.lock:
-            self.threads_done += 1
-            if self.threads_done == self.num_proc:
-                self.done_event.set()
-
-    def watchdog(self):
-        self.done_event.wait()
-        self.app.switch_screen("cpu_results")
 
 
 

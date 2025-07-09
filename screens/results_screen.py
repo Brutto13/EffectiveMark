@@ -1,3 +1,5 @@
+import statistics
+
 from textual.app import App, ComposeResult
 from textual.widgets import ListItem, ListView, Label  # , Input, Button, ProgressBar, Static
 from textual.screen import Screen
@@ -10,15 +12,18 @@ class CPUResults(Screen):
     def __init__(self):
         super().__init__()
         self.cpu_label = Label()
+        self.pcore_label = Label()
 
     def compose(self) -> ComposeResult:
         yield Vertical(
             self.cpu_label,
+            self.pcore_label,
             id='dialog'
         )
 
     def on_screen_resume(self) -> None:
-        self.cpu_label.update(F"CPU Score {common.cpu_score}")
+        self.cpu_label.update(F"CPU Single-Thread Score:   {common.cpu_score}")
+        self.pcore_label.update(F"CPU Multiple-Thread Score: {round(statistics.mean(common.cpu_pcore), 1)}")
 
     def on_key(self, event):
         if event.key == "q":
