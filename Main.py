@@ -21,6 +21,7 @@ from screens.gpu_screens import *
 from screens.ram_screens import *
 from screens.eth_screens import *
 from screens.hdd_screens import *
+from screens.results_screen import *
 import variables as common
 
 import subprocess
@@ -68,51 +69,6 @@ class SystemOverview(Screen):
             self.app.pop_screen()
 
 
-class BenchmarkResults(Screen):
-    def __init__(self):
-        # Ethernet: DWNL-UPLD-PING
-        super().__init__()
-        # Initialize label placeholders (they'll be assigned in compose)
-        self.cpu_label = Label()
-        self.ram_label = Label()
-        self.gpu_label = Label()
-        self.download_label = Label()
-        self.upload_label = Label()
-        self.ping_label = Label()
-        self.hdd_read_label = Label()
-        self.hdd_write_label = Label()
-
-    def compose(self) -> ComposeResult:
-        yield Vertical(
-            self.cpu_label,
-            self.ram_label,
-            self.gpu_label,
-            self.hdd_read_label,
-            self.hdd_write_label,
-            self.download_label,
-            self.upload_label,
-            self.ping_label,
-            id="dialog"
-        )
-
-    def on_screen_resume(self):
-        # global cpu_score, ram_score, download, upload, ping, gpu_score
-        self.cpu_label.update(F"CPU Benchmark Score: {common.cpu_score}")
-        self.ram_label.update(F"RAM Benchmark Score: {common.ram_score}")
-        self.gpu_label.update(F"GPU Benchmark FPS:.. {common.gpu_score} FPS")
-        self.download_label.update(F"Download Rate:...... {common.download} Mbps")
-        self.upload_label.update(F"Upload Rate:........ {common.upload} Mbps")
-        self.ping_label.update(F"Ping:............... {common.ping} ms"),
-        self.hdd_read_label.update(F"HDD Read Rate:...... {round(common.hdd_read, 1)} MB/s")
-        self.hdd_write_label.update(F"HDD Write Rate:..... {round(common.hdd_write, 1)} MB/s")
-
-    # def on_show(self):
-        # self.cpu_label.update(F"CPU Benchmark Score: {self.cpu_score}")
-        # self.ram_label.update(F"RAM Benchmark Score: {self.ram_score}")
-
-    def on_key(self, event):
-        if event.key == "q":
-            self.app.switch_screen("StartScreen")
 
 
 class StartScreen(Screen):
@@ -161,7 +117,12 @@ class LauncherApp(App):
         "GPUSelect": GPUSelect,
         "HDDConfirm": HDDConfirm,
         "hdd-benchmark": HDDBenchmark,
-        "hdd-error": HDDPermissionError
+        "hdd-error": HDDPermissionError,
+        "cpu_results": CPUResults,
+        "ram_results": RAMResults,
+        "gpu_results": GPUResults,
+        "hdd_results": HDDResults,
+        "int_results": EthernetResults
     }
 
     CSS = """
@@ -181,7 +142,9 @@ class LauncherApp(App):
         height: 50%;
     }
     
-    StartScreen, SystemOverview, CPU_Select, CPU_SingleThread_Loading, RAMConfirm, RAMProgress, SpeedConfirm, SpeedProgress, BenchmarkResults, GPUSelect, GPUArithmeticTest, HDDConfirm, HDDBenchmark, HDDPermissionError {
+    StartScreen, SystemOverview, CPU_Select, CPU_SingleThread_Loading, RAMConfirm, RAMProgress, SpeedConfirm,
+    SpeedProgress, BenchmarkResults, GPUSelect, GPUArithmeticTest, HDDConfirm, HDDBenchmark, HDDPermissionError,
+    CPUResults, GPUResults, RAMResults, HDDResults, EthernetResults {
         align: center middle;
     }
 

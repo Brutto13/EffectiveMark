@@ -5,7 +5,7 @@ import os
 def hdd_benchmark(size_gb=1):
     # Create File
     size: int = round(size_gb * (1024**3))
-    content: str = ""
+    content: str = "a"
 
     # Write Test
     try:
@@ -26,8 +26,8 @@ def hdd_benchmark(size_gb=1):
     os.remove("1gb-file")
 
     # Calculate times into transfer
-    read_transfer  = (1024*size_gb)/(read_end-read_start)    # Unit: MB/s
-    write_transfer = (1024*size_gb)/(write_end-write_start)  # Unit: MB/s
+    read_transfer = round((1024*size_gb)/(read_end-read_start), 1)    # Unit: MB/s
+    write_transfer = round((1024*size_gb)/(write_end-write_start), 1)  # Unit: MB/s
 
     # Return Transfer Data
     return read_transfer, write_transfer

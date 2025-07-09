@@ -14,7 +14,7 @@ class CPU_SingleThread_Loading(Screen):
         common.cpu_score, _ = await asyncio.to_thread(raw_cpu_benchmark, iterations=int(2e7))
         del _
         # cpu_score = await asyncio.to_thread(cpu_benchmark, cores=run_threads)
-        await self.app.switch_screen("results")
+        await self.app.switch_screen("cpu_results")
 
     def on_screen_resume(self): asyncio.create_task(self.ExecuteCPUBenchmark())
 

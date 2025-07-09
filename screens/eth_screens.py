@@ -29,7 +29,7 @@ class SpeedConfirm(Screen):
 class SpeedProgress(Screen):
     async def ExecuteSpeedTest(self):
         common.download, common.upload, common.ping = await asyncio.to_thread(eth_benchmark)
-        await self.app.switch_screen("results")
+        await self.app.switch_screen("int_results")
 
     def on_show(self):
         asyncio.create_task(self.ExecuteSpeedTest())

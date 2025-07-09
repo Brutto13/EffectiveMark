@@ -37,7 +37,7 @@ def generate_grid_triangles(grid_size=100, quad_size=0.02):
 
 class GPUStressTest(mglw.WindowConfig):
     # gl_version = (3, 3)
-    title = "EffectiveMark V1.2 - GPU Render Test"
+    title = "EffectiveMark V1.0 - GPU Render Test"
     window_size = (1920, 1080)
 
     try: resource_dir = sys._MEIPASS

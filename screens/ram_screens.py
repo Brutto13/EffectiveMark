@@ -34,7 +34,7 @@ class RAMProgress(Screen):
         # global common.ram_score
         common.ram_score = await asyncio.to_thread(ram_benchmark)
         # self.app.switch_screen("results")
-        await self.app.switch_screen("results")
+        await self.app.switch_screen("ram_results")
 
     def on_mount(self):
         asyncio.create_task(self.ExecuteRAMBenchmark())

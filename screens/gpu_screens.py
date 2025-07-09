@@ -42,4 +42,4 @@ class GPUArithmeticTest(Screen):
     def chk_res(self):
         if common.gpu_score != common._init:
             self.timer.stop()
-            self.app.switch_screen("results")
+            self.app.switch_screen("gpu_results")
