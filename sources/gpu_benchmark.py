@@ -6,6 +6,7 @@ import numpy as np
 
 import variables as common
 
+
 def generate_grid_triangles(grid_size=100, quad_size=0.02):
     """
     Tworzy siatkę quadów, każdy quad to 2 trójkąty, razem 6 wierzchołków na quad.
@@ -41,7 +42,7 @@ class GPUStressTest(mglw.WindowConfig):
     window_size = (1920, 1080)
 
     try: resource_dir = sys._MEIPASS
-    except: resource_dir = '.'
+    except AttributeError: resource_dir = '.'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

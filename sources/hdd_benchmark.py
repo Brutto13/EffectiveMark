@@ -32,4 +32,5 @@ def hdd_benchmark(size_gb=1):
     # Return Transfer Data
     return read_transfer, write_transfer
 
-if __name__ == "__main__": print(hdd_benchmark(.01))
+
+if __name__ == "__main__": print(hdd_benchmark(1))

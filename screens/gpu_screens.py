@@ -1,5 +1,3 @@
-import threading
-
 from textual.app import ComposeResult
 from textual.widgets import ListItem, ListView, Label
 from textual.screen import Screen
@@ -28,6 +26,10 @@ class GPUSelect(Screen):
 
 
 class GPUArithmeticTest(Screen):
+    def __init__(self):
+        super().__init__()
+        self.timer = None
+
     def compose(self) -> ComposeResult:
         yield Container(
             Label("GPU Arithmetic Benchmark in progress, Please wait..."),
@@ -40,6 +42,6 @@ class GPUArithmeticTest(Screen):
         self.timer = self.set_interval(0.5, self.chk_res)
 
     def chk_res(self):
-        if common.gpu_score != common._init:
+        if common.gpu_score != common.init:
             self.timer.stop()
             self.app.switch_screen("gpu_results")

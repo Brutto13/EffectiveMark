@@ -29,6 +29,7 @@ class RAMConfirm(Screen):
         elif event.item.id == "N":
             self.app.switch_screen("StartScreen")
 
+
 class RAMProgress(Screen):
     async def ExecuteRAMBenchmark(self):
         # global common.ram_score

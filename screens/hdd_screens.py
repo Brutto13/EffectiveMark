@@ -9,6 +9,7 @@ from textual.containers import Container, Vertical
 from sources.hdd_benchmark import hdd_benchmark
 import variables as common
 
+
 class HDDConfirm(Screen):
     def compose(self) -> ComposeResult:
         yield Container(

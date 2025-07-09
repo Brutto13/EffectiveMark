@@ -1,4 +1,8 @@
 import asyncio
+import os
+
+from functools import partial
+from multiprocessing import Process, freeze_support, Manager
 from sources.cpu_benchmark import *
 
 from textual.app import ComposeResult
@@ -21,6 +25,43 @@ class CPU_SingleThread_Loading(Screen):
     def compose(self) -> ComposeResult:
         yield Container(Label("CPU Benchmark in progress, Please wait..."), id="dialog")
 
+def worker(scores):
+    start = time.perf_counter()
+    for i in range(int(2e7)):
+        result = sin(i)+cos(i)-log(sqrt(i+1))
+    end = time.perf_counter()
+    elapsed = end - start
+    score = round(1000/elapsed, 1)
+    scores.append(score)
+
+class CPU_MultiThread_Loading(Screen):
+    def compose(self) -> ComposeResult:
+        yield Container(
+            Label("CPU Multi-Threading Benchmark in progress, please wait..."),
+            id="dialog"
+        )
+
+    def on_screen_resume(self):
+        self.manager = Manager()
+        self.shared_scores = self.manager.list()
+        self.timer = self.set_interval(0.5, self.chk_value)
+        self.launch_processes()
+
+    def launch_processes(self):
+        for _ in range(os.cpu_count()):
+            p = Process(target=worker, args=(self.shared_scores,))
+            p.start()
+
+    def chk_value(self):
+        if len(self.shared_scores) == os.cpu_count():
+            common.cpu_pcore[:] = list(self.shared_scores)
+            self.timer.stop()
+            # self.app.call_from_thread(partial(self.app.switch_screen, "cpu_results"))
+            self.app.switch_screen("cpu_results")
+
+
+
+
 
 class CPU_Select(Screen):
     def compose(self) -> ComposeResult:
@@ -30,7 +71,7 @@ class CPU_Select(Screen):
             Label("Select number of threads"),
             ListView(
                 ListItem(Label("Single Thread Benchmark"), id='single'),
-                # ListItem(Label("Full CPU benchmark"), id='full'),
+                ListItem(Label("Multi Threads Benchmark"), id='full'),
                 ListItem(Label("Cancel"), id="exit"),
                 id="menu-list"),
             id="dialog",

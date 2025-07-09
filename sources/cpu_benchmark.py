@@ -2,11 +2,11 @@ import time
 from math import *
 from statistics import median
 
-def raw_cpu_benchmark(iterations: int) -> tuple[float, float]:
+
+def raw_cpu_benchmark(iterations: int | float) -> tuple[float, float]:
     scores: list[float] = []
     total: float = 0.0
     for _ in range(5):
-        print(_)
         start = time.perf_counter()
         for i in range(int(iterations)):
             total += sin(cos(i)+sqrt(log(i+1)))
