@@ -22,8 +22,11 @@ class CPUResults(Screen):
         )
 
     def on_screen_resume(self) -> None:
+        try: pcore = round(statistics.mean(common.cpu_pcore), 1)
+        except: pcore = 0
         self.cpu_label.update(F"CPU Single-Thread Score:   {common.cpu_score}")
-        self.pcore_label.update(F"CPU Multiple-Thread Score: {round(statistics.mean(common.cpu_pcore), 1)}")
+        self.pcore_label.update(F"CPU Multiple-Thread Score: {pcore}")
+        del pcore
 
     def on_key(self, event):
         if event.key == "q":
