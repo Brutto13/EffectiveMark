@@ -1,12 +1,11 @@
 # UI Imports
-from textual.app import ComposeResult
-from textual.widgets import ListItem, ListView, Label
-from textual.screen import Screen
-from textual.containers import Container
+# from textual.app import ComposeResult
+# from textual.widgets import ListItem, ListView, Label
+# from textual.screen import Screen
+# from textual.containers import Container
 
 # General Imports
 import psutil
-import os
 
 # CPU-related imports
 import subprocess
@@ -35,6 +34,7 @@ def get_cpu_name():
 # Communications
 # run_threads: int = 1
 
+
 class SystemOverview(Screen):
     def compose(self):
         yield Vertical(
@@ -61,11 +61,16 @@ class StartScreen(Screen):
             ListItem(Label("5. Run Internet Speed Test"), id="eth0"),
             ListItem(Label("6. Run HDD Read/Write Speed test"), id="hdd"),
             ListItem(Label("7. Benchmark Results"), id="res"),
-            ListItem(Label("8. Settings"), id='set'),
-            ListItem(Label("9. Exit"), id="off"),
+            # ListItem(Label("8. Settings"), id='set'),
+            ListItem(Label("8. Exit"), id="off"),
             id="menu-list"
         ),
         id="dialog")
+        # yield Label("ESC - Quit the app")
+
+    def on_key(self, event):
+        if event.key == 'escape': quit()
+
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         choice = event.item.id
@@ -96,21 +101,14 @@ class LauncherApp(App):
         "GPUSelect": GPUSelect,
         "HDDConfirm": HDDConfirm,
         "hdd-benchmark": HDDBenchmark,
-        "hdd-error": HDDPermissionError,
-        "cpu_results": CPUResults,
-        "ram_results": RAMResults,
-        "gpu_results": GPUResults,
-        "hdd_results": HDDResults,
-        "int_results": EthernetResults
+        "hdd-error": HDDPermissionError
     }
 
     CSS = """
-    
     Screen {
         /*background: #3C3C3C;*/
         background: blue;
-        
-    }
+    }    
     
     #dialog {
         background: grey;
@@ -121,9 +119,9 @@ class LauncherApp(App):
         height: 50%;
     }
     
-    StartScreen, SystemOverview, CPU_Select, CPU_SingleThread_Loading, CPU_MultiThread_Loading, CPU_MultipleThread_Loading, RAMConfirm, RAMProgress, SpeedConfirm,
-    SpeedProgress, BenchmarkResults, GPUSelect, GPUArithmeticTest, HDDConfirm, HDDBenchmark, HDDPermissionError,
-    CPUResults, GPUResults, RAMResults, HDDResults, EthernetResults {
+    StartScreen, SystemOverview, CPU_Select, CPU_SingleThread_Loading, CPU_MultipleThread_Loading, RAMConfirm,
+    RAMProgress, SpeedConfirm, SpeedProgress, BenchmarkResults, GPUSelect, GPUArithmeticTest, HDDConfirm, HDDBenchmark,
+    HDDPermissionError, CPUResults, GPUResults, RAMResults, HDDResults, EthernetResults {
         align: center middle;
     }
 
@@ -164,10 +162,7 @@ if __name__ == "__main__":
     RAM_DETEC = round(psutil.virtual_memory().total / (1024 ** 3), 1)
 
     # Try to get GPU info. IGFX fallback on error
-    try:
-        GPU_NAME0 = GPUtil.getGPUs()[0].name
-
-    except IndexError:
-        GPU_NAME0 = F"Integrated Graphics"
+    try: GPU_NAME0 = GPUtil.getGPUs()[0].name
+    except IndexError: GPU_NAME0 = "Integrated Graphics"
 
     LauncherApp().run()

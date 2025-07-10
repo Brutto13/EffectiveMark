@@ -45,7 +45,7 @@ class HDDBenchmark(Screen):
     async def run_benchmark(self):
         common.hdd_read, common.hdd_write = await asyncio.to_thread(hdd_benchmark, size_gb=1)
         if not common.hdd_read: await self.app.switch_screen("hdd-error")
-        else: await self.app.switch_screen("hdd_results")
+        else: await self.app.switch_screen("results")
 
     def compose(self) -> ComposeResult:
         yield Container(

@@ -1,6 +1,6 @@
 import time
 
-def ram_benchmark(size: int = 2e9):
+def ram_benchmark(size: int = 1e9):
     testlist = []
     writestart = time.perf_counter()
     for i in range(int(size)):
