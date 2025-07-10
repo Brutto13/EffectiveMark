@@ -116,6 +116,13 @@ class HDDResults(Screen):
         if event.key == 'q': self.app.switch_screen('results')
 
 
+class SaveResults(Screen):
+    def compose(self) -> ComposeResult: ...
+
+    def on_key(self, event):
+        if event.key == 'q':
+            self.app.switch_screen('results')
+
 class BenchmarkResults(Screen):
     def compose(self) -> ComposeResult:
         yield Container(
@@ -126,6 +133,7 @@ class BenchmarkResults(Screen):
                 ListItem(Label("GPU Results"), id='gpu'),
                 ListItem(Label("HDD Results"), id='hdd'),
                 ListItem(Label("Speed Test Results"), id='int'),
+                ListItem(Label("Save to a file"), id='save'),
                 ListItem(Label("Return"), id='exit'),
                 id='menu-list'
             ),
@@ -139,7 +147,9 @@ class BenchmarkResults(Screen):
         elif choice == 'gpu': self.app.switch_screen('gpu_results')
         elif choice == 'hdd': self.app.switch_screen('hdd_results')
         elif choice == 'int': self.app.switch_screen('int_results')
-        elif choice == 'exit': self.app.switch_screen("StartScreen")
+        elif choice == 'save': self.app.switch_screen('save_results')
+        elif choice == 'exit': self.app.switch_screen('StartScreen')
+
 
     def on_key(self, event):
         if event.key == "q":

@@ -31,7 +31,7 @@ def worker(scores):
         result = sin(i)+cos(i)-log(sqrt(i+1))
     end = time.perf_counter()
     elapsed = end - start
-    score = round(1000/elapsed, 1)
+    score = round(100000/elapsed, 1)
     scores.append(score)
 
 class CPU_MultiThread_Loading(Screen):
@@ -58,8 +58,6 @@ class CPU_MultiThread_Loading(Screen):
             self.timer.stop()
             # self.app.call_from_thread(partial(self.app.switch_screen, "cpu_results"))
             self.app.switch_screen("cpu_results")
-
-
 
 
 

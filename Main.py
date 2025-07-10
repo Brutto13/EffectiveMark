@@ -1,4 +1,8 @@
 # UI Imports
+from textual.app import ComposeResult
+from textual.widgets import ListItem, ListView, Label
+from textual.screen import Screen
+from textual.containers import Container
 
 # General Imports
 import psutil
@@ -27,21 +31,6 @@ def get_cpu_name():
         return output or "Unknown"
     except Exception:
         return "Not available"
-
-
-# Constants
-CPU_NAME0 = get_cpu_name()
-CPU_CORES = os.cpu_count()
-CPU_FREQC = psutil.cpu_freq().current
-RAM_DETEC = round(psutil.virtual_memory().total/(1024**3), 1)
-
-# Try to get GPU info. IGFX fallback on error
-try:
-    GPU_NAME0 = GPUtil.getGPUs()[0].name
-
-except IndexError:
-    GPU_NAME0 = F"Integrated Graphics"
-
 
 # Communications
 # run_threads: int = 1
@@ -72,7 +61,8 @@ class StartScreen(Screen):
             ListItem(Label("5. Run Internet Speed Test"), id="eth0"),
             ListItem(Label("6. Run HDD Read/Write Speed test"), id="hdd"),
             ListItem(Label("7. Benchmark Results"), id="res"),
-            ListItem(Label("8. Exit"), id="off"),
+            ListItem(Label("8. Settings"), id='set'),
+            ListItem(Label("9. Exit"), id="off"),
             id="menu-list"
         ),
         id="dialog")
@@ -80,16 +70,14 @@ class StartScreen(Screen):
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         choice = event.item.id
 
-        if choice == "sys": self.app.push_screen("SystemOverview")  # System Overview
-        else:
-            # self.app.exit()
-            if choice == "cpu":    self.app.switch_screen("CPUConfirm")
-            elif choice == "ram":  self.app.switch_screen("RAMConfirm")
-            elif choice == "res":  self.app.switch_screen("results")
-            elif choice == "eth0": self.app.switch_screen("SpeedConfirm")
-            elif choice == "gpu":  self.app.switch_screen("GPUSelect")
-            elif choice == "hdd":  self.app.switch_screen("HDDConfirm")
-            elif choice == "off":  self.app.exit()
+        if choice == "sys":    self.app.push_screen("SystemOverview")  # System Overview
+        elif choice == "cpu":  self.app.switch_screen("CPUConfirm")
+        elif choice == "ram":  self.app.switch_screen("RAMConfirm")
+        elif choice == "res":  self.app.switch_screen("results")
+        elif choice == "eth0": self.app.switch_screen("SpeedConfirm")
+        elif choice == "gpu":  self.app.switch_screen("GPUSelect")
+        elif choice == "hdd":  self.app.switch_screen("HDDConfirm")
+        elif choice == "off":  self.app.exit()
 
 
 class LauncherApp(App):
@@ -133,7 +121,7 @@ class LauncherApp(App):
         height: 50%;
     }
     
-    StartScreen, SystemOverview, CPU_Select, CPU_SingleThread_Loading, CPU_MultipleThread_Loading, RAMConfirm, RAMProgress, SpeedConfirm,
+    StartScreen, SystemOverview, CPU_Select, CPU_SingleThread_Loading, CPU_MultiThread_Loading, CPU_MultipleThread_Loading, RAMConfirm, RAMProgress, SpeedConfirm,
     SpeedProgress, BenchmarkResults, GPUSelect, GPUArithmeticTest, HDDConfirm, HDDBenchmark, HDDPermissionError,
     CPUResults, GPUResults, RAMResults, HDDResults, EthernetResults {
         align: center middle;
@@ -168,4 +156,18 @@ class LauncherApp(App):
 if __name__ == "__main__":
     import multiprocessing
     multiprocessing.freeze_support()
+
+    # Constants
+    CPU_NAME0 = get_cpu_name()
+    CPU_CORES = os.cpu_count()
+    CPU_FREQC = psutil.cpu_freq().current
+    RAM_DETEC = round(psutil.virtual_memory().total / (1024 ** 3), 1)
+
+    # Try to get GPU info. IGFX fallback on error
+    try:
+        GPU_NAME0 = GPUtil.getGPUs()[0].name
+
+    except IndexError:
+        GPU_NAME0 = F"Integrated Graphics"
+
     LauncherApp().run()
