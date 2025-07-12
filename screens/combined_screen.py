@@ -17,6 +17,7 @@ import variables as common
 cpu = ram = gpu = hdd = False
 modes = []
 
+
 class CombinedTest(Screen):
     def compose(self) -> ComposeResult:
         yield Grid(
@@ -39,7 +40,7 @@ class CombinedTest(Screen):
         gpu = self.query_one('#gpu_switch', Switch).value
         hdd = self.query_one('#hdd_switch', Switch).value
         modes = [cpu, ram, gpu, hdd]
-        self.app.push_screen(CombinedRunning())
+        self.app.switch_screen('CombinedRunning')
 
     def on_key(self, event):
         if event.key == 'q': self.app.switch_screen("StartScreen")
@@ -49,38 +50,22 @@ class CombinedRunning(Screen):
     def __init__(self):
         super().__init__()
         self.total = modes.count(True)
-        self.status = Label()
-        self.progress = ProgressBar(total=self.total)
+        # self.status = Label()
+        self.step = 0
 
     def compose(self) -> ComposeResult:
         yield Vertical(
             Label("Combined Benchmark Running"),
-            self.status,
+            Label("This may take a while"),
             id='dialog'
         )
 
-    def update_progress(self):
-        self.progress.advance(1)
-
     def on_screen_resume(self):
-        self.call_later(self.launch_benchmarks)
+        self.call_later(self.start_benchmark)
 
-    async def launch_benchmarks(self):
-        await self.mount(self.progress)
-        if cpu:
-            self.status.update("Starting CPU Benchmark")
-            common.cpu_score, _ = await asyncio.to_thread(raw_cpu_benchmark, 2e7)
-
-        if ram:
-            self.status.update("Starting CPU Benchmark")
-            common.ram_score = await asyncio.to_thread(ram_benchmark)
-
-        if gpu:
-            self.status.update("Starting CPU Benchmark")
-            await asyncio.to_thread(start_gpu_benchmark)
-
-        if hdd:
-            self.status.update("Starting CPU Benchmark")
-            common.hdd_read, common.hdd_write = await asyncio.to_thread(hdd_benchmark)
-
-        self.app.switch_screen("results")
+    def start_benchmark(self):
+        if cpu: common.cpu_score, _ = raw_cpu_benchmark(2e7)
+        if ram: common.ram_score = ram_benchmark()
+        if gpu: start_gpu_benchmark()
+        if hdd: common.hdd_read, common.hdd_write = hdd_benchmark()
+        self.app.switch_screen('results')
