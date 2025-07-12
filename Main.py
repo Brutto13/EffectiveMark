@@ -3,6 +3,7 @@
 # from textual.widgets import ListItem, ListView, Label
 # from textual.screen import Screen
 # from textual.containers import Container
+import os
 
 # General Imports
 import psutil
@@ -20,6 +21,7 @@ from screens.ram_screens import *
 from screens.eth_screens import *
 from screens.hdd_screens import *
 from screens.results_screen import *
+from screens.combined_screen import *
 
 
 def get_cpu_name():
@@ -36,18 +38,43 @@ def get_cpu_name():
 
 
 class SystemOverview(Screen):
+    def __init__(self):
+        super().__init__()
+        self.table = DataTable(cursor_type='none')
+
+
     def compose(self):
-        yield Vertical(
-            Label(F"CPU Name:  {CPU_NAME0}"),
-            Label(F"GPU Name:  {GPU_NAME0}"),
-            Label(F"CPU Cores: {CPU_CORES}"),
-            Label(F"RAM Total: {RAM_DETEC} GB"),
-            id="dialog"
+        yield Container(
+            self.table,
+            id='dialog'
         )
+
+    def on_screen_resume(self):
+
+        ROWS = [
+            ("Device", "Property", ""),
+            ("CPU", "Name", F"{CPU_NAME0}"),
+            ("",    "Cores", F"{CPU_CORES}"),
+            ("",    "Frequency", F"{round(CPU_FREQC, -1)} MHz"),
+            ("RAM", "Capacity", F"{RAM_DETEC} GB"),
+            ("GPU", "Name", F"{GPU_NAME0}")
+        ]
+
+        table = self.query_one(DataTable)
+        try:
+            for col in ROWS[0]:
+                table.add_column(col, key=col)
+        except Exception:
+            pass
+
+        # Update content (Delete and re-append)
+        table.clear(columns=False)
+        for row in ROWS[1:]:
+            table.add_row(*row)
 
     def on_key(self, event):
         if event.key == "q":
-            self.app.pop_screen()
+            self.app.switch_screen('StartScreen')
 
 
 class StartScreen(Screen):
@@ -61,27 +88,26 @@ class StartScreen(Screen):
             ListItem(Label("5. Run Internet Speed Test"), id="eth0"),
             ListItem(Label("6. Run HDD Read/Write Speed test"), id="hdd"),
             ListItem(Label("7. Benchmark Results"), id="res"),
-            # ListItem(Label("8. Settings"), id='set'),
-            ListItem(Label("8. Exit"), id="off"),
+            ListItem(Label("8. Run Combined Test"), id='cmb'),
+            ListItem(Label("9. Exit"), id="off"),
             id="menu-list"
         ),
         id="dialog")
-        # yield Label("ESC - Quit the app")
 
     def on_key(self, event):
-        if event.key == 'escape': quit()
-
+        if event.key == 'escape': self.app.exit()
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         choice = event.item.id
 
-        if choice == "sys":    self.app.push_screen("SystemOverview")  # System Overview
+        if choice == "sys":    self.app.switch_screen("SystemOverview")  # System Overview
         elif choice == "cpu":  self.app.switch_screen("CPUConfirm")
         elif choice == "ram":  self.app.switch_screen("RAMConfirm")
         elif choice == "res":  self.app.switch_screen("results")
         elif choice == "eth0": self.app.switch_screen("SpeedConfirm")
         elif choice == "gpu":  self.app.switch_screen("GPUSelect")
         elif choice == "hdd":  self.app.switch_screen("HDDConfirm")
+        elif choice == "cmb":  self.app.switch_screen("Combined")
         elif choice == "off":  self.app.exit()
 
 
@@ -101,14 +127,50 @@ class LauncherApp(App):
         "GPUSelect": GPUSelect,
         "HDDConfirm": HDDConfirm,
         "hdd-benchmark": HDDBenchmark,
-        "hdd-error": HDDPermissionError
+        "hdd-error": HDDPermissionError,
+        "Combined": CombinedTest,
+        "CombinedRunning": CombinedRunning
     }
 
     CSS = """
     Screen {
         /*background: #3C3C3C;*/
-        background: blue;
-    }    
+        background: darkblue;
+        align: center middle;
+    }
+    
+    #table-container {
+        margin: 100 100;
+    }
+    
+    DataTable {
+        background: grey;
+        color: black;
+        border: round heavy black;
+    }
+    
+    /*    
+    DataTable.header-cell {
+        color: red;
+    }
+    */
+    
+    Checkbox {
+        color: grey;
+    }
+    
+    #checkbox1, #checkbox2 {
+        content-align: center middle;
+        border: round black;
+        /*height: auto;*/
+        min-height: 5;
+        /*padding: 0;*/
+    }
+    
+    Button {
+        max-height: 3;
+        width: 100%;
+    }
     
     #dialog {
         background: grey;
@@ -117,16 +179,17 @@ class LauncherApp(App):
         align: center middle;
         width: 50%;
         height: 50%;
+        layout: vertical;
     }
     
-    StartScreen, SystemOverview, CPU_Select, CPU_SingleThread_Loading, CPU_MultipleThread_Loading, RAMConfirm,
-    RAMProgress, SpeedConfirm, SpeedProgress, BenchmarkResults, GPUSelect, GPUArithmeticTest, HDDConfirm, HDDBenchmark,
-    HDDPermissionError, CPUResults, GPUResults, RAMResults, HDDResults, EthernetResults {
+    #dialog2 {
+        background: grey;
+        border: round lightgrey;
+        padding: 2;
         align: center middle;
-    }
-
-    Button {
-        width: 100%;
+        width: 50%;
+        height: 70%;
+        layout: vertical;
     }
     
     #menu-list {
@@ -144,7 +207,6 @@ class LauncherApp(App):
         color: white;
         /* color: black;*/
     }
-    
     """
 
     def on_mount(self):

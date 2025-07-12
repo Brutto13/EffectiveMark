@@ -1,7 +1,7 @@
 import os
 from statistics import mean
 from textual.app import App, ComposeResult
-from textual.widgets import DataTable
+from textual.widgets import DataTable, Button
 from textual.screen import Screen
 from textual.containers import Vertical, Container, Horizontal
 from textual.coordinate import Coordinate
@@ -15,32 +15,27 @@ class BenchmarkResults(Screen):
         self.table = DataTable(cursor_type='none')
 
     def compose(self) -> ComposeResult:
-        yield Container(
-            self.table,
+        yield Vertical(
+            Container(self.table),
+            # Button("test"),
             id='dialog'
         )
 
     def on_screen_resume(self) -> None:
+        try: cpu_pcore = round(mean(common.cpu_pcore), 1)
+        except: cpu_pcore = 0
 
-        try:
-            cpu_pcore = round(mean(common.cpu_pcore), 1)
-        except:
-            cpu_pcore = 0
-
-        # try: del self.table
-        # except AttributeError: pass
-        # finally: self.table = DataTable(cursor_type='none')
         ROWS = [
             ("Device", "Test Type", "Result"),
             ("CPU", "1 Thread", F"{common.cpu_score}"),
             ("", F"{os.cpu_count()} Threads", F"{cpu_pcore}"),
             ("RAM", "", F"{common.ram_score}"),
-            ("GPU", "", F"{common.gpu_score}"),
+            ("GPU", "", F"{common.gpu_score} FPS"),
             ("HDD/SSD", "Read", F"{common.hdd_read} MB/s"),
             ("", "Write", F"{common.hdd_write} MB/s"),
             ("Internet", "Receive", F"{common.download} Mbps"),
             ("", "Send", F"{common.upload} Mbps"),
-            ("", "Ping", F"{common.ping} ms"),
+            ("", "Ping", F"{common.ping} ms")
         ]
 
         table = self.query_one(DataTable)
@@ -63,7 +58,6 @@ class BenchmarkResults(Screen):
         elif choice == 'int': self.app.switch_screen('int_results')
         elif choice == 'save': self.app.switch_screen('save_results')
         elif choice == 'exit': self.app.switch_screen('StartScreen')
-
 
     def on_key(self, event):
         if event.key == "q":
