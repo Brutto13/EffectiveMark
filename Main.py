@@ -1,9 +1,8 @@
 # UI Imports
-# from textual.app import ComposeResult
-# from textual.widgets import ListItem, ListView, Label
-# from textual.screen import Screen
-# from textual.containers import Container
-import os
+from textual.app import ComposeResult, App
+from textual.widgets import ListItem, ListView, Label
+from textual.screen import Screen
+from textual.containers import Container
 
 # General Imports
 import psutil
@@ -15,13 +14,15 @@ import subprocess
 import GPUtil
 
 # Internal files imports
-from screens.cpu_screens import *
-from screens.gpu_screens import *
-from screens.ram_screens import *
-from screens.eth_screens import *
-from screens.hdd_screens import *
-from screens.results_screen import *
-from screens.combined_screen import *
+from benchmarking.screens.cpu_screens import *
+from benchmarking.screens.ram_screens import *
+from benchmarking.screens.gpu_screens import *
+from benchmarking.screens.eth_screens import *
+from benchmarking.screens.hdd_screens import *
+from benchmarking.screens.results_screen import *
+from benchmarking.screens.combined_screen import *
+
+from stability.screens.cpu_screens import *
 
 
 def get_cpu_name():
@@ -33,15 +34,11 @@ def get_cpu_name():
     except Exception:
         return "Not available"
 
-# Communications
-# run_threads: int = 1
-
 
 class SystemOverview(Screen):
     def __init__(self):
         super().__init__()
         self.table = DataTable(cursor_type='none')
-
 
     def compose(self):
         yield Container(
@@ -50,7 +47,6 @@ class SystemOverview(Screen):
         )
 
     def on_screen_resume(self):
-
         ROWS = [
             ("Device", "Property", ""),
             ("CPU", "Name", F"{CPU_NAME0}"),
@@ -74,12 +70,11 @@ class SystemOverview(Screen):
 
     def on_key(self, event):
         if event.key == "q":
-            self.app.switch_screen('StartScreen')
+            self.app.switch_screen('AppStart')
 
 
-class StartScreen(Screen):
+class BenchmarkStart(Screen):
     def compose(self) -> ComposeResult:
-        yield Label("Effective Mark V1.0")
         yield Container(ListView(
             ListItem(Label("1. System Overview"), id="sys"),
             ListItem(Label("2. Run CPU Benchmark"), id="cpu"),
@@ -89,13 +84,10 @@ class StartScreen(Screen):
             ListItem(Label("6. Run HDD Read/Write Speed test"), id="hdd"),
             ListItem(Label("7. Benchmark Results"), id="res"),
             ListItem(Label("8. Run Combined Test"), id='cmb'),
-            ListItem(Label("9. Exit"), id="off"),
+            ListItem(Label("9. Return"), id="off"),
             id="menu-list"
         ),
         id="dialog")
-
-    def on_key(self, event):
-        if event.key == 'escape': self.app.exit()
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         choice = event.item.id
@@ -108,13 +100,56 @@ class StartScreen(Screen):
         elif choice == "gpu":  self.app.switch_screen("GPUSelect")
         elif choice == "hdd":  self.app.switch_screen("HDDConfirm")
         elif choice == "cmb":  self.app.switch_screen("Combined")
-        elif choice == "off":  self.app.exit()
+        elif choice == "off":  self.app.switch_screen("AppStart")
+
+class StabilityCheck(Screen):
+    def compose(self) -> ComposeResult:
+        yield Container(
+            ListView(
+                ListItem(Label("CPU Stability Test"), id='cpu'),
+                ListItem(Label("RAM Stability Test"), id='ram'),
+                ListItem(Label("GPU Stability Test"), id='gpu'),
+                ListItem(Label("Return"), id='off'),
+                id='menu-list'
+            ),
+            id='dialog'
+        )
+
+    def on_list_view_selected(self, event):
+        choice = event.item.id
+        if choice == 'cpu': self.app.switch_screen('CPUStability')
+        elif choice == 'ram': pass
+        elif choice == 'gpu': pass
+        elif choice == 'off': self.app.switch_screen('AppStart')
+
+
+class Start(Screen):
+    def compose(self) -> ComposeResult:
+        yield Container(
+            ListView(
+                ListItem(Label("System Overview"), id='sys'),
+                ListItem(Label("Benchmarks"), id='benchmark'),
+                ListItem(Label("Stability Tests"), id='tests'),
+                ListItem(Label("Exit App"), id='off'),
+                id='menu-list'
+            ),
+            id='dialog'
+        )
+
+    def on_list_view_selected(self, event):
+        choice = event.item.id
+        if choice == "sys": self.app.switch_screen("SystemOverview")
+        elif choice == "benchmark": self.app.switch_screen("StartScreen")
+        elif choice == "tests": self.app.switch_screen("StabilityScreen")
+        elif choice == "off": self.app.exit()
 
 
 class LauncherApp(App):
     SCREENS = {
-        "StartScreen": StartScreen,
+        "StartScreen": BenchmarkStart,
+        "StabilityScreen": StabilityCheck,
         "SystemOverview": SystemOverview,
+        "AppStart": Start,
         "InProgress": CPU_SingleThread_Loading,
         "FullProgress": CPU_MultiThread_Loading,
         "results": BenchmarkResults,
@@ -129,7 +164,8 @@ class LauncherApp(App):
         "hdd-benchmark": HDDBenchmark,
         "hdd-error": HDDPermissionError,
         "Combined": CombinedTest,
-        "CombinedRunning": CombinedRunning
+        "CombinedRunning": CombinedRunning,
+        "CPUStability": CPUTest
     }
 
     CSS = """
@@ -162,9 +198,7 @@ class LauncherApp(App):
     #checkbox1, #checkbox2 {
         content-align: center middle;
         border: round black;
-        /*height: auto;*/
         min-height: 5;
-        /*padding: 0;*/
     }
     
     Button {
@@ -203,14 +237,12 @@ class LauncherApp(App):
     }
 
     ListView:focus ListItem.--highlight {
-        /* background: cadetblue;*/
         color: white;
-        /* color: black;*/
     }
     """
 
     def on_mount(self):
-        self.push_screen(StartScreen())
+        self.push_screen(Start())
 
 
 if __name__ == "__main__":

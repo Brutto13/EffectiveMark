@@ -1,16 +1,12 @@
-import asyncio
-
 from textual.app import ComposeResult
-from textual.widget import Widget
-from textual.widgets import Label, Switch, ProgressBar, Button
+from textual.widgets import Label, Switch, Button
 from textual.screen import Screen
 from textual.containers import Horizontal, Container, Grid, Vertical
 
-from sources.cpu_benchmark import *
-from sources.ram_benchmark import *
-from sources.gpu_benchmark import *
-from sources.hdd_benchmark import *
-from sources.eth_benchmark import *
+from benchmarking.sources.cpu_benchmark import *
+from benchmarking.sources.ram_benchmark import *
+from benchmarking.sources.gpu_benchmark import *
+from benchmarking.sources.hdd_benchmark import *
 
 import variables as common
 
