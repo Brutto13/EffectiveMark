@@ -11,3 +11,4 @@ upload = init
 ping = init
 hdd_read = init
 hdd_write = init
+dll_found = False

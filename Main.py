@@ -23,7 +23,9 @@ from benchmarking.screens.results_screen import *
 from benchmarking.screens.combined_screen import *
 
 from stability.screens.cpu_screens import *
+from stability.sources.cpu_testing import try_fetch_dll
 
+import variables as common
 
 def get_cpu_name():
     try:
@@ -125,6 +127,7 @@ class StabilityCheck(Screen):
 
 class Start(Screen):
     def compose(self) -> ComposeResult:
+        yield Label("Effective Mark V1.1")
         yield Container(
             ListView(
                 ListItem(Label("System Overview"), id='sys'),
@@ -142,6 +145,19 @@ class Start(Screen):
         elif choice == "benchmark": self.app.switch_screen("StartScreen")
         elif choice == "tests": self.app.switch_screen("StabilityScreen")
         elif choice == "off": self.app.exit()
+
+
+class MissingDLL(Screen):
+    def compose(self) -> ComposeResult:
+        yield Vertical(
+            Label("Failed to load OpenHardwareMonitor.dll"),
+            Horizontal(Button("Continue", id='ok')),
+            id='dialog'
+        )
+
+    def on_button_pressed(self, event):
+        self.app.switch_screen('AppStart')
+        # elif choice == 'off': quit()
 
 
 class LauncherApp(App):
@@ -242,12 +258,13 @@ class LauncherApp(App):
     """
 
     def on_mount(self):
-        self.push_screen(Start())
-
+        if common.dll_found: self.push_screen(Start())
+        else: self.push_screen(MissingDLL())
 
 if __name__ == "__main__":
     import multiprocessing
     multiprocessing.freeze_support()
+    common.dll_found = try_fetch_dll()
 
     # Constants
     CPU_NAME0 = get_cpu_name()

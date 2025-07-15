@@ -4,6 +4,21 @@ import clr
 import multiprocessing as mp
 from math import *
 
+def try_fetch_dll():
+    try:
+        dll_path = R"C:\Users\DeLl1\Desktop\EffectiveMark\OpenHardwareMonitorLib.dll"
+        if not os.path.exists(dll_path):
+            print(f"Missing DLL: {dll_path}")
+            return None
+
+        sys.path.append(os.path.dirname(dll_path))
+        clr.AddReference(dll_path)
+        from OpenHardwareMonitor import Hardware
+
+        return True
+    except Exception as e:
+        return False
+
 
 def get_cpu_temperature_from_dll():
     try:
@@ -19,12 +34,12 @@ def get_cpu_temperature_from_dll():
         from OpenHardwareMonitor import Hardware
 
         computer = Hardware.Computer()
-        computer.MainboardEnabled = False
+        # computer.MainboardEnabled = False
         computer.CPUEnabled = True
-        computer.GPUEnabled = False
-        computer.RAMEnabled = False
-        computer.FanControllerEnabled = False
-        computer.HDDEnabled = False
+        # computer.GPUEnabled = False
+        # computer.RAMEnabled = False
+        # computer.FanControllerEnabled = False
+        # computer.HDDEnabled = False
         computer.Open()
 
         temps = []
@@ -40,20 +55,23 @@ def get_cpu_temperature_from_dll():
         if temps:
             return max(temps)
         else:
-            return None
+            return 40
 
     except Exception as e:
         print(f"[OpenHardwareMonitor DLL Error] {e}")
-        return None
+        return 50
 
-def worker(stop, complexity: int = 5) -> None:
+
+def worker(stop, complexity: int = 150) -> None:
     result = []
 
     while not stop.is_set():
         for x in range(complexity):
             n = (log(abs(sin(x)-cos(x))+1)-sqrt(abs(sin(tan(complexity-x))+1)+1))**(1/complexity)-complexity**(7/(x+1))
             result.append(n)
-        result.clear()
+        x = sum(result)/len(result)
+        # result.clear()
+    result.clear()
 
 
 def multi_cpu(cores: int = -1) -> None:
@@ -67,3 +85,4 @@ def multi_cpu(cores: int = -1) -> None:
 
 if __name__ == '__main__':
     print(get_cpu_temperature_from_dll())
+    input()

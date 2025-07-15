@@ -1,4 +1,5 @@
 import asyncio
+import time
 import os
 import psutil
 import multiprocessing as mp
@@ -9,7 +10,7 @@ from textual.widgets import Label, ProgressBar, Button
 from textual.containers import Container, Horizontal
 
 # Internal imports
-from stability.sources.cpu_testing import worker
+from stability.sources.cpu_testing import worker, get_cpu_temperature_from_dll
 
 
 class CPUTest(Screen):
@@ -19,6 +20,7 @@ class CPUTest(Screen):
         self.temp_bar = ProgressBar(total=100, show_eta=False)
         self.processes = []
         self.terminate = []
+        self.timer = self.app.set_timer(0.1, self.update_screen)
 
     def compose(self) -> ComposeResult:
         yield Container(
@@ -34,12 +36,18 @@ class CPUTest(Screen):
         # otherwise set count of processes equal to number of CPU cores
         if cores == -1: cores = os.cpu_count()
 
-        for _ in range(cores+1):
+        for _ in range(cores):
             stop = mp.Event()
             self.terminate.append(stop)
-            proc = mp.Process(target=worker, daemon=True, args=(stop,))
+            proc = mp.Process(target=worker, args=(stop,))
             proc.start()
             self.processes.append(proc)
+            time.sleep(1)
+
+    def update_screen(self):
+        self.usage_bar.update(progress=psutil.cpu_percent(0.1))
+        self.temp_bar.update(progress=get_cpu_temperature_from_dll())
+        # psutil.cpu_percent()
 
     def on_screen_resume(self) -> None:
         self.app.call_later(self.multi_cpu)
