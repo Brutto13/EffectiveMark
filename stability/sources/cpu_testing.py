@@ -1,6 +1,7 @@
 import os
 import sys
 import clr
+import time
 import multiprocessing as mp
 from math import *
 
@@ -72,6 +73,7 @@ def worker(stop, complexity: int = 150) -> None:
             n = (log(abs(sin(x)-cos(x))+1)-sqrt(abs(sin(tan(complexity-x))+1)+1))**(1/complexity)-complexity**(7/(x+1))
             result.append(n)
         x = sum(result)/len(result)
+        # time.sleep(.01)
         # result.clear()
     result.clear()
 

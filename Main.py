@@ -260,6 +260,7 @@ class LauncherApp(App):
     ListView:focus ListItem.--highlight {
         color: white;
     }
+       
     """
 
     def on_mount(self):
