@@ -4,26 +4,28 @@ import clr
 import multiprocessing as mp
 from math import *
 
+
 def try_fetch_dll():
     try:
-        dll_path = R"C:\Users\DeLl1\Desktop\EffectiveMark\OpenHardwareMonitorLib.dll"
+        dll_path = R"C:\Users\DeLl1\Desktop\EffectiveMark\LibreHardwareMonitorLib.dll"
         if not os.path.exists(dll_path):
             print(f"Missing DLL: {dll_path}")
             return None
 
         sys.path.append(os.path.dirname(dll_path))
         clr.AddReference(dll_path)
-        from OpenHardwareMonitor import Hardware
+        from LibreHardwareMonitor import Hardware
 
         return True
-    except Exception as e:
+    except Exception as error:
+        print(error)
         return False
 
 
-def get_cpu_temperature_from_dll():
+def get_cpu_temperature_from_dll() -> float | None:
     try:
         # Update the path to where OpenHardwareMonitorLib.dll is located
-        dll_path = r"C:\Users\DeLl1\Desktop\EffectiveMark\OpenHardwareMonitorLib.dll"
+        dll_path = r"C:\Users\DeLl1\Desktop\EffectiveMark\LibreHardwareMonitorLib.dll"
         if not os.path.exists(dll_path):
             print(f"Missing DLL: {dll_path}")
             return None
@@ -31,7 +33,7 @@ def get_cpu_temperature_from_dll():
         sys.path.append(os.path.dirname(dll_path))
         clr.AddReference(dll_path)
 
-        from OpenHardwareMonitor import Hardware
+        from LibreHardwareMonitor import Hardware
 
         computer = Hardware.Computer()
         # computer.MainboardEnabled = False
@@ -53,13 +55,13 @@ def get_cpu_temperature_from_dll():
 
         computer.Close()
         if temps:
-            return max(temps)
+            return round(max(temps))
         else:
-            return 40
+            return 0
 
-    except Exception as e:
-        print(f"[OpenHardwareMonitor DLL Error] {e}")
-        return 50
+    except Exception as error:
+        print(f"[OpenHardwareMonitor DLL Error] {error}")
+        return 0
 
 
 def worker(stop, complexity: int = 150) -> None:
@@ -82,6 +84,7 @@ def multi_cpu(cores: int = -1) -> None:
     for _ in range(cores):
         proc = mp.Process(target=worker)
         proc.start()
+
 
 if __name__ == '__main__':
     print(get_cpu_temperature_from_dll())

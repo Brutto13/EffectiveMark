@@ -23,7 +23,9 @@ from benchmarking.screens.results_screen import *
 from benchmarking.screens.combined_screen import *
 
 from stability.screens.cpu_screens import *
+from stability.screens.ram_screens import *
 from stability.sources.cpu_testing import try_fetch_dll
+
 
 import variables as common
 
@@ -104,6 +106,7 @@ class BenchmarkStart(Screen):
         elif choice == "cmb":  self.app.switch_screen("Combined")
         elif choice == "off":  self.app.switch_screen("AppStart")
 
+
 class StabilityCheck(Screen):
     def compose(self) -> ComposeResult:
         yield Container(
@@ -120,7 +123,7 @@ class StabilityCheck(Screen):
     def on_list_view_selected(self, event):
         choice = event.item.id
         if choice == 'cpu': self.app.switch_screen('CPUStability')
-        elif choice == 'ram': pass
+        elif choice == 'ram': self.app.switch_screen('RAMStability')
         elif choice == 'gpu': pass
         elif choice == 'off': self.app.switch_screen('AppStart')
 
@@ -181,7 +184,9 @@ class LauncherApp(App):
         "hdd-error": HDDPermissionError,
         "Combined": CombinedTest,
         "CombinedRunning": CombinedRunning,
-        "CPUStability": CPUTest
+        "CPUStability": CPUTest,
+        "RAMStability": RAMTest,
+        "RAMError": RAMError
     }
 
     CSS = """
@@ -260,6 +265,7 @@ class LauncherApp(App):
     def on_mount(self):
         if common.dll_found: self.push_screen(Start())
         else: self.push_screen(MissingDLL())
+
 
 if __name__ == "__main__":
     import multiprocessing

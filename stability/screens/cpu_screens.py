@@ -17,7 +17,8 @@ class CPUTest(Screen):
     def __init__(self):
         super().__init__()
         self.usage_bar = ProgressBar(total=100, show_eta=False)
-        self.temp_bar = ProgressBar(total=100, show_eta=False)
+        # self.freq_bar = ProgressBar(total=5000, show_eta=False, show_percentage=False)
+        self.temp_bar = ProgressBar(total=100, show_eta=False, show_percentage=False)
         self.processes = []
         self.terminate = []
         self.timer = self.app.set_timer(0.1, self.update_screen)
@@ -26,6 +27,7 @@ class CPUTest(Screen):
         yield Container(
             Label("CPU Stability Testing"),
             Horizontal(Label("CPU Usage [%]       "), self.usage_bar),
+            # Horizontal(Label("CPU Frequency [Mhz]"), self.freq_bar),
             Horizontal(Label("CPU Temperature [*C]"), self.temp_bar),
             Button("Abort Test"),
             id='dialog'
@@ -42,10 +44,10 @@ class CPUTest(Screen):
             proc = mp.Process(target=worker, args=(stop,))
             proc.start()
             self.processes.append(proc)
-            time.sleep(1)
 
     def update_screen(self):
         self.usage_bar.update(progress=psutil.cpu_percent(0.1))
+        # self.freq_bar.update(progress=psutil.cpu_freq().current)
         self.temp_bar.update(progress=get_cpu_temperature_from_dll())
         # psutil.cpu_percent()
 
@@ -58,6 +60,3 @@ class CPUTest(Screen):
             proc.join(1)
 
         self.app.switch_screen("StabilityScreen")
-
-
-
