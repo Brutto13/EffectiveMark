@@ -3,7 +3,9 @@
 ## Deprecation notices
 Following functions will be deprecated in future release:
 + GPU Benchmarking
-+ Internet SpeedTest
+
+GPU Benchmark will be deprecated in order to keep compatibility with other
+releases ("+iso")
 
 ## Overview
 Complete PC Benchmark written in Python 3.9 allows to run CPU, GPU and RAM
@@ -41,3 +43,17 @@ so it's partially depends on CPU.
 This test generates 1GB-sized content and measures write and read time.
 Then calculates read and write rates. 
 **WARNING: Most of the time takes content generation!**
+
+## Change Log
+#### V1.0.0
++ First Stable Release
+
+#### Current Stage (status of main branch, stable)
++ PATCH: Now SystemOverview works for Internal GPU too
++ ADDED: Stability testing of CPU (partially) and RAM is working
++ IMPROVED: Reduced time HDD Benchmark needs to generate file content
+
+
+#### Future Plans (V1.1.0)
++ **DEPRECATION:** GPU Benchmark
++ Bootable ISO will be added (version "+iso")
