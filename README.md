@@ -1,22 +1,23 @@
 # Effective Mark PC Benchmark
 
+## Deprecation notices
+Following functions will be deprecated in future release:
++ GPU Benchmarking
++ Internet SpeedTest
+
 ## Overview
-Complete PC Benchmark written in Python 3.11 allows to run CPU, GPU and RAM
+Complete PC Benchmark written in Python 3.9 allows to run CPU, GPU and RAM
 benchmark. Also measures connection speed.
 
 ## Download
 There is no download site. To download application you will have to
 use git clone command. Then build it with software like "PyInstaller",
 also download all dependencies needed to build (see more in dependencies)
+If you want to download stable release go to releases section of repository.
 
 ## Dependencies
-Following dependencies are required to run in Python:
-1) Textual
-2) Moderngl (moderngl, moderngl_window)
-3) psutil
-4) speedtest (speedtest-cli)
-5) cpuinfo (py-cpuinfo)
-6) GPUtil (gputil)
+Full dependencies list is available in
+requirements.txt
 
 ## CPU Benchmark
 ### Overview
@@ -24,7 +25,7 @@ Classic CPU Benchmark. Measures time of performing CPU-heavy operations
 like sines, cosines or logarithms. The returned score depends on time,
 higher score means shorter time.
 
-## GPU Benchmark
+## GPU Benchmark (DEPRECATED)
 ### Overview
 Uses GPU to render 10k objects which use heavy calculations.
 This test returns average FPS.
