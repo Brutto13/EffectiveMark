@@ -34,6 +34,7 @@ def worker(scores):
     score = round(100000/elapsed, 1)
     scores.append(score)
 
+
 class CPU_MultiThread_Loading(Screen):
     def compose(self) -> ComposeResult:
         yield Container(
@@ -60,13 +61,10 @@ class CPU_MultiThread_Loading(Screen):
             self.app.switch_screen("results")
 
 
-
 class CPU_Select(Screen):
     def compose(self) -> ComposeResult:
-        # items = [ListItem(Label(str(x+1)), id="a"+str(x+1)) for x in range(CPU_CORES-1, -1, -1)]
-        # items.append(ListItem(Label("Cancel"), id="exit"))
         yield Container(
-            Label("Select number of threads"),
+            Label("Select Test Type"),
             ListView(
                 ListItem(Label("Single Thread Benchmark"), id='single'),
                 ListItem(Label("Multi Threads Benchmark"), id='full'),

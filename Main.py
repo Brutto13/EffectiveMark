@@ -83,7 +83,7 @@ class BenchmarkStart(Screen):
             ListItem(Label("1. System Overview"), id="sys"),
             ListItem(Label("2. Run CPU Benchmark"), id="cpu"),
             ListItem(Label("3. Run RAM Benchmark"), id="ram"),
-            ListItem(Label("4. Run GPU Benchmark (deprecated)"), id="gpu"),
+            ListItem(Label("4. Run GPU Benchmark"), id="gpu"),
             ListItem(Label("5. Run Internet Speed Test"), id="eth0"),
             ListItem(Label("6. Run HDD Read/Write Speed test"), id="hdd"),
             ListItem(Label("7. Benchmark Results"), id="res"),
@@ -111,10 +111,10 @@ class StabilityCheck(Screen):
     def compose(self) -> ComposeResult:
         yield Container(
             ListView(
-                ListItem(Label("CPU Stability Test"), id='cpu'),
-                ListItem(Label("RAM Stability Test"), id='ram'),
-                ListItem(Label("GPU Stability Test"), id='gpu'),
-                ListItem(Label("Return"), id='off'),
+                ListItem(Label("1. CPU Stability Test"), id='cpu'),
+                ListItem(Label("2. RAM Stability Test"), id='ram'),
+                ListItem(Label("3. GPU Stability Test"), id='gpu'),
+                ListItem(Label("4. Return"), id='off'),
                 id='menu-list'
             ),
             id='dialog'
@@ -264,14 +264,12 @@ class LauncherApp(App):
     """
 
     def on_mount(self):
-        if common.dll_found: self.push_screen(Start())
-        else: self.push_screen(MissingDLL())
+        self.push_screen(Start())
 
 
 if __name__ == "__main__":
     import multiprocessing
     multiprocessing.freeze_support()
-    common.dll_found = try_fetch_dll()
 
     # Constants
     CPU_NAME0 = get_cpu_name()
