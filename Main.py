@@ -1,12 +1,3 @@
-# UI Imports
-from textual.app import ComposeResult, App
-from textual.widgets import ListItem, ListView, Label
-from textual.screen import Screen
-from textual.containers import Container
-
-# General Imports
-import psutil
-
 # CPU-related imports
 import subprocess
 
@@ -24,10 +15,10 @@ from benchmarking.screens.combined_screen import *
 
 from stability.screens.cpu_screens import *
 from stability.screens.ram_screens import *
-from stability.sources.cpu_testing import try_fetch_dll
-
+from stability.sources.cpu_testing import *
 
 import variables as common
+
 
 def get_cpu_name():
     try:
@@ -90,8 +81,7 @@ class BenchmarkStart(Screen):
             ListItem(Label("8. Run Combined Test"), id='cmb'),
             ListItem(Label("9. Return"), id="off"),
             id="menu-list"
-        ),
-        id="dialog")
+        ), id="dialog")
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         choice = event.item.id
@@ -148,19 +138,6 @@ class Start(Screen):
         elif choice == "benchmark": self.app.switch_screen("StartScreen")
         elif choice == "tests": self.app.switch_screen("StabilityScreen")
         elif choice == "off": self.app.exit()
-
-
-class MissingDLL(Screen):
-    def compose(self) -> ComposeResult:
-        yield Vertical(
-            Label("Failed to load OpenHardwareMonitor.dll"),
-            Horizontal(Button("Continue", id='ok')),
-            id='dialog'
-        )
-
-    def on_button_pressed(self, event):
-        self.app.switch_screen('AppStart')
-        # elif choice == 'off': quit()
 
 
 class LauncherApp(App):
