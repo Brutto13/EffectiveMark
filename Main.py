@@ -1,12 +1,3 @@
-# UI Imports
-from textual.app import ComposeResult, App
-from textual.widgets import ListItem, ListView, Label
-from textual.screen import Screen
-from textual.containers import Container
-
-# General Imports
-import psutil
-
 # CPU-related imports
 import subprocess
 
@@ -24,10 +15,10 @@ from benchmarking.screens.combined_screen import *
 
 from stability.screens.cpu_screens import *
 from stability.screens.ram_screens import *
-from stability.sources.cpu_testing import try_fetch_dll
-
+from stability.sources.cpu_testing import *
 
 import variables as common
+
 
 def get_cpu_name():
     try:
