@@ -34,6 +34,7 @@ def worker(scores):
     score = round(100000/elapsed, 1)
     scores.append(score)
 
+
 class CPU_MultiThread_Loading(Screen):
     def compose(self) -> ComposeResult:
         yield Container(

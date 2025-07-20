@@ -1,68 +1,36 @@
 import os
-import sys
-import clr
-import time
+import glob
 import multiprocessing as mp
 from math import *
 
 
-def try_fetch_dll():
-    try:
-        dll_path = R"C:\Users\DeLl1\Desktop\EffectiveMark\LibreHardwareMonitorLib.dll"
-        if not os.path.exists(dll_path):
-            print(f"Missing DLL: {dll_path}")
-            return None
+def get_cpu_frequencies():
+    freqs = {}
+    cpu_paths = glob.glob('/sys/devices/system/cpu/cpu[0-9]*')
+    for cpu_path in cpu_paths:
+        cpu = os.path.basename(cpu_path)
+        freq_file = os.path.join(cpu_path, 'cpufreq/scaling_cur_freq')
+        try:
+            with open(freq_file, 'r') as f:
+                freq_khz = int(f.read().strip())
+                freqs[cpu] = freq_khz / 1000.0  # MHz
+        except FileNotFoundError:
+            freqs[cpu] = None
+    return freqs
 
-        sys.path.append(os.path.dirname(dll_path))
-        clr.AddReference(dll_path)
-        from LibreHardwareMonitor import Hardware
-
-        return True
-    except Exception as error:
-        print(error)
-        return False
-
-
-def get_cpu_temperature_from_dll() -> float | None:
-    try:
-        # Update the path to where OpenHardwareMonitorLib.dll is located
-        dll_path = r"C:\Users\DeLl1\Desktop\EffectiveMark\LibreHardwareMonitorLib.dll"
-        if not os.path.exists(dll_path):
-            print(f"Missing DLL: {dll_path}")
-            return None
-
-        sys.path.append(os.path.dirname(dll_path))
-        clr.AddReference(dll_path)
-
-        from LibreHardwareMonitor import Hardware
-
-        computer = Hardware.Computer()
-        # computer.MainboardEnabled = False
-        computer.CPUEnabled = True
-        # computer.GPUEnabled = False
-        # computer.RAMEnabled = False
-        # computer.FanControllerEnabled = False
-        # computer.HDDEnabled = False
-        computer.Open()
-
-        temps = []
-        for hardware in computer.Hardware:
-            if hardware.HardwareType == Hardware.HardwareType.CPU:
-                hardware.Update()
-                for sensor in hardware.Sensors:
-                    if sensor.SensorType == Hardware.SensorType.Temperature:
-                        if sensor.Value is not None:
-                            temps.append(sensor.Value)
-
-        computer.Close()
-        if temps:
-            return round(max(temps))
-        else:
-            return 0
-
-    except Exception as error:
-        print(f"[OpenHardwareMonitor DLL Error] {error}")
-        return 0
+def get_cpu_temperatures():
+    temps = {}
+    thermal_zones = glob.glob('/sys/class/thermal/thermal_zone*')
+    for zone in thermal_zones:
+        try:
+            with open(os.path.join(zone, 'type'), 'r') as f:
+                sensor_type = f.read().strip()
+            with open(os.path.join(zone, 'temp'), 'r') as f:
+                temp_milli = int(f.read().strip())
+                temps[sensor_type] = temp_milli / 1000.0  # °C
+        except (FileNotFoundError, ValueError):
+            continue
+    return temps
 
 
 def worker(stop, complexity: int = 150) -> None:
@@ -86,8 +54,3 @@ def multi_cpu(cores: int = -1) -> None:
     for _ in range(cores):
         proc = mp.Process(target=worker)
         proc.start()
-
-
-if __name__ == '__main__':
-    print(get_cpu_temperature_from_dll())
-    input()

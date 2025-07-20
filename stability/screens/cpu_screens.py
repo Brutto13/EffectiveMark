@@ -1,23 +1,20 @@
-import asyncio
-import time
-import os
 import psutil
-import multiprocessing as mp
 
-from textual.app import App, ComposeResult
+from statistics import mean
+from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.widgets import Label, ProgressBar, Button
 from textual.containers import Container, Horizontal
 
 # Internal imports
-from stability.sources.cpu_testing import worker, get_cpu_temperature_from_dll
+from stability.sources.cpu_testing import *
 
 
 class CPUTest(Screen):
     def __init__(self):
         super().__init__()
-        self.usage_bar = ProgressBar(total=100, show_eta=False)
-        # self.freq_bar = ProgressBar(total=5000, show_eta=False, show_percentage=False)
+        # self.usage_bar = ProgressBar(total=100, show_eta=False)
+        self.freq_bar = ProgressBar(total=5000, show_eta=False, show_percentage=False)
         self.temp_bar = ProgressBar(total=100, show_eta=False, show_percentage=False)
         self.processes = []
         self.terminate = []
@@ -26,9 +23,9 @@ class CPUTest(Screen):
     def compose(self) -> ComposeResult:
         yield Container(
             Label("CPU Stability Testing"),
-            Horizontal(Label("CPU Usage [%]       "), self.usage_bar),
+            Horizontal(Label("CPU Avg Frequency [MHz]   "), self.freq_bar),
             # Horizontal(Label("CPU Frequency [Mhz]"), self.freq_bar),
-            Horizontal(Label("CPU Temperature [*C]"), self.temp_bar),
+            Horizontal(Label("CPU Avg Temperature [*C]  "), self.temp_bar),
             Button("Abort Test"),
             id='dialog'
         )
@@ -46,9 +43,9 @@ class CPUTest(Screen):
             self.processes.append(proc)
 
     def update_screen(self):
-        self.usage_bar.update(progress=psutil.cpu_percent(0.1))
+        self.freq_bar.update(progress=mean(get_cpu_frequencies()))
         # self.freq_bar.update(progress=psutil.cpu_freq().current)
-        self.temp_bar.update(progress=get_cpu_temperature_from_dll())
+        self.temp_bar.update(progress=mean(get_cpu_temperatures()))
         # psutil.cpu_percent()
 
     def on_screen_resume(self) -> None:

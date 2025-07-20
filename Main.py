@@ -264,14 +264,14 @@ class LauncherApp(App):
     """
 
     def on_mount(self):
-        if common.dll_found: self.push_screen(Start())
-        else: self.push_screen(MissingDLL())
+        self.push_screen(Start())
+        # else: self.push_screen(MissingDLL())
 
 
 if __name__ == "__main__":
     import multiprocessing
     multiprocessing.freeze_support()
-    common.dll_found = try_fetch_dll()
+    # common.dll_found = try_fetch_dll()
 
     # Constants
     CPU_NAME0 = get_cpu_name()
