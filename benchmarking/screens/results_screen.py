@@ -1,10 +1,9 @@
 import os
 from statistics import mean
-from textual.app import App, ComposeResult
-from textual.widgets import DataTable, Button
+from textual.app import ComposeResult
+from textual.widgets import DataTable
 from textual.screen import Screen
-from textual.containers import Vertical, Container, Horizontal
-from textual.coordinate import Coordinate
+from textual.containers import Vertical, Container
 
 import variables as common
 

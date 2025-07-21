@@ -5,7 +5,6 @@ from textual.containers import Horizontal, Container, Grid, Vertical
 
 from benchmarking.sources.cpu_benchmark import *
 from benchmarking.sources.ram_benchmark import *
-from benchmarking.sources.gpu_benchmark import *
 from benchmarking.sources.hdd_benchmark import *
 
 import variables as common

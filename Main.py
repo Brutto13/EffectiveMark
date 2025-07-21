@@ -10,7 +10,6 @@ import GPUtil
 # Internal files imports
 from benchmarking.screens.cpu_screens import *
 from benchmarking.screens.ram_screens import *
-from benchmarking.screens.gpu_screens import *
 from benchmarking.screens.eth_screens import *
 from benchmarking.screens.hdd_screens import *
 from benchmarking.screens.results_screen import *
@@ -78,12 +77,10 @@ class BenchmarkStart(Screen):
             ListItem(Label("1. System Overview"), id="sys"),
             ListItem(Label("2. Run CPU Benchmark"), id="cpu"),
             ListItem(Label("3. Run RAM Benchmark"), id="ram"),
-            ListItem(Label("4. Run GPU Benchmark (deprecated)"), id="gpu"),
-            ListItem(Label("5. Run Internet Speed Test"), id="eth0"),
-            ListItem(Label("6. Run HDD Read/Write Speed test"), id="hdd"),
-            ListItem(Label("7. Benchmark Results"), id="res"),
-            ListItem(Label("8. Run Combined Test"), id='cmb'),
-            ListItem(Label("9. Return"), id="off"),
+            ListItem(Label("4. Run Internet Speed Test"), id="eth0"),
+            ListItem(Label("5. Run HDD Read/Write Speed test"), id="hdd"),
+            ListItem(Label("6. Benchmark Results"), id="res"),
+            ListItem(Label("7. Return"), id="off"),
             id="menu-list"
         ),
         id="dialog")
@@ -96,9 +93,7 @@ class BenchmarkStart(Screen):
         elif choice == "ram":  self.app.switch_screen("RAMConfirm")
         elif choice == "res":  self.app.switch_screen("results")
         elif choice == "eth0": self.app.switch_screen("SpeedConfirm")
-        elif choice == "gpu":  self.app.switch_screen("GPUSelect")
         elif choice == "hdd":  self.app.switch_screen("HDDConfirm")
-        elif choice == "cmb":  self.app.switch_screen("Combined")
         elif choice == "off":  self.app.switch_screen("AppStart")
 
 
@@ -108,7 +103,6 @@ class StabilityCheck(Screen):
             ListView(
                 ListItem(Label("CPU Stability Test"), id='cpu'),
                 ListItem(Label("RAM Stability Test"), id='ram'),
-                ListItem(Label("GPU Stability Test"), id='gpu'),
                 ListItem(Label("Return"), id='off'),
                 id='menu-list'
             ),
@@ -119,7 +113,6 @@ class StabilityCheck(Screen):
         choice = event.item.id
         if choice == 'cpu': self.app.switch_screen('CPUStability')
         elif choice == 'ram': self.app.switch_screen('RAMStability')
-        elif choice == 'gpu': pass
         elif choice == 'off': self.app.switch_screen('AppStart')
 
 
@@ -145,19 +138,6 @@ class Start(Screen):
         elif choice == "off": self.app.exit()
 
 
-class MissingDLL(Screen):
-    def compose(self) -> ComposeResult:
-        yield Vertical(
-            Label("Failed to load OpenHardwareMonitor.dll"),
-            Horizontal(Button("Continue", id='ok')),
-            id='dialog'
-        )
-
-    def on_button_pressed(self, event):
-        self.app.switch_screen('AppStart')
-        # elif choice == 'off': quit()
-
-
 class LauncherApp(App):
     SCREENS = {
         "StartScreen": BenchmarkStart,
@@ -172,8 +152,6 @@ class LauncherApp(App):
         "RAMProgress": RAMProgress,
         "SpeedConfirm": SpeedConfirm,
         "SpeedProgress": SpeedProgress,
-        "GPUArithmeticTest": GPUArithmeticTest,
-        "GPUSelect": GPUSelect,
         "HDDConfirm": HDDConfirm,
         "hdd-benchmark": HDDBenchmark,
         "hdd-error": HDDPermissionError,
@@ -261,15 +239,12 @@ class LauncherApp(App):
 
     def on_mount(self):
         self.title = common.TITLE
-        # self.sub_title = common.METADATA
         self.push_screen(Start())
-        # else: self.push_screen(MissingDLL())
 
 
 if __name__ == "__main__":
     import multiprocessing
     multiprocessing.freeze_support()
-    # common.dll_found = try_fetch_dll()
 
     # Constants
     CPU_NAME0 = get_cpu_name()
