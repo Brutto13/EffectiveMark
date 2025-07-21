@@ -5,7 +5,7 @@ from multiprocessing import Process, Manager
 from benchmarking.sources.cpu_benchmark import *
 
 from textual.app import ComposeResult
-from textual.widgets import ListItem, ListView, Label
+from textual.widgets import ListItem, ListView, Label, Header
 from textual.screen import Screen
 from textual.containers import Container
 
@@ -22,6 +22,7 @@ class CPU_SingleThread_Loading(Screen):
     def on_screen_resume(self): asyncio.create_task(self.ExecuteCPUBenchmark())
 
     def compose(self) -> ComposeResult:
+        yield Header()
         yield Container(Label("CPU Benchmark in progress, Please wait..."), id="dialog")
 
 
@@ -37,6 +38,7 @@ def worker(scores):
 
 class CPU_MultiThread_Loading(Screen):
     def compose(self) -> ComposeResult:
+        yield Header()
         yield Container(
             Label("CPU Multi-Threading Benchmark in progress, please wait..."),
             id="dialog"
@@ -66,6 +68,7 @@ class CPU_Select(Screen):
     def compose(self) -> ComposeResult:
         # items = [ListItem(Label(str(x+1)), id="a"+str(x+1)) for x in range(CPU_CORES-1, -1, -1)]
         # items.append(ListItem(Label("Cancel"), id="exit"))
+        yield Header()
         yield Container(
             Label("Select number of threads"),
             ListView(

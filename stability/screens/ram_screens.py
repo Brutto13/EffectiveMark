@@ -1,10 +1,8 @@
 import psutil
-import random
 import multiprocessing as mp
 from textual.app import Screen, ComposeResult
-from textual.color import Gradient
 from textual.containers import Container, Horizontal
-from textual.widgets import Label, ProgressBar, Button
+from textual.widgets import Label, ProgressBar, Button, Header
 
 from stability.sources.ram_testing import ram_worker
 
@@ -43,6 +41,7 @@ class RAMTest(Screen):
         self.timer = self.set_interval(0.5, self.update_ram_screen)
 
     def compose(self) -> ComposeResult:
+        yield Header()
         yield Container(
             Label("RAM Stability Test"),
             Horizontal(Label("Test Passes"), self.passes_label),
@@ -94,6 +93,7 @@ class RAMTest(Screen):
 
 class RAMError(Screen):
     def compose(self) -> ComposeResult:
+        yield Header()
         yield Container(
             Label("RAM Read/Write Error Detected"),
             Button("Exit"),

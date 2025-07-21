@@ -17,7 +17,6 @@ class BenchmarkResults(Screen):
     def compose(self) -> ComposeResult:
         yield Vertical(
             Container(self.table),
-            # Button("test"),
             id='dialog'
         )
 
@@ -30,7 +29,6 @@ class BenchmarkResults(Screen):
             ("CPU", "1 Thread", F"{common.cpu_score}"),
             ("", F"{os.cpu_count()} Threads", F"{cpu_pcore}"),
             ("RAM", "", F"{common.ram_score}"),
-            ("GPU", "", F"{common.gpu_score} FPS"),
             ("HDD/SSD", "Read", F"{common.hdd_read} MB/s"),
             ("", "Write", F"{common.hdd_write} MB/s"),
             ("Internet", "Receive", F"{common.download} Mbps"),

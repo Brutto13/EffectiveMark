@@ -2,7 +2,7 @@ import asyncio
 
 from textual import events
 from textual.app import ComposeResult
-from textual.widgets import ListItem, ListView, Label
+from textual.widgets import ListItem, ListView, Label, Header
 from textual.screen import Screen
 from textual.containers import Container, Vertical
 
@@ -12,6 +12,7 @@ import variables as common
 
 class HDDConfirm(Screen):
     def compose(self) -> ComposeResult:
+        yield Header()
         yield Container(
             Label("Run HDD Benchmark?"),
             ListView(
@@ -29,6 +30,7 @@ class HDDConfirm(Screen):
 
 class HDDPermissionError(Screen):
     def compose(self) -> ComposeResult:
+        yield Header()
         yield Vertical(
             Label("Failed to run HDD Benchmark"),
             Label("Error Details: PermissionError:"),
@@ -48,6 +50,7 @@ class HDDBenchmark(Screen):
         else: await self.app.switch_screen("results")
 
     def compose(self) -> ComposeResult:
+        yield Header()
         yield Container(
             Label("HDD Benchmark Running, Please wait..."),
             id="dialog"

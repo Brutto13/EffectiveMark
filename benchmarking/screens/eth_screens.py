@@ -1,7 +1,7 @@
 import asyncio
 
 from textual.app import ComposeResult
-from textual.widgets import ListItem, ListView, Label  # , Input, Button, ProgressBar, Static
+from textual.widgets import ListItem, ListView, Label, Header
 from textual.screen import Screen
 from textual.containers import Container
 
@@ -11,6 +11,7 @@ import variables as common
 
 class SpeedConfirm(Screen):
     def compose(self) -> ComposeResult:
+        yield Header()
         yield Container(
             Label("Run Connection Speed Test?"),
             ListView(
@@ -35,4 +36,5 @@ class SpeedProgress(Screen):
         asyncio.create_task(self.ExecuteSpeedTest())
 
     def compose(self) -> ComposeResult:
+        yield Header()
         yield Container(Label("Measuring Connection Speed"), id="dialog")

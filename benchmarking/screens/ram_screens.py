@@ -1,7 +1,7 @@
 import asyncio
 
 from textual.app import ComposeResult
-from textual.widgets import ListItem, ListView, Label
+from textual.widgets import ListItem, ListView, Label, Header
 from textual.screen import Screen
 from textual.containers import Container
 
@@ -10,8 +10,8 @@ import variables as common
 
 
 class RAMConfirm(Screen):
-
     def compose(self) -> ComposeResult:
+        yield Header()
         yield Container(
             Label("Run RAM Benchmark"),
             ListView(
@@ -35,10 +35,11 @@ class RAMProgress(Screen):
         # global common.ram_score
         common.ram_score = await asyncio.to_thread(ram_benchmark)
         # self.app.switch_screen("results")
-        self.app.switch_screen("results")
+        await self.app.switch_screen("results")
 
     def on_mount(self):
         asyncio.create_task(self.ExecuteRAMBenchmark())
 
     def compose(self):
+        yield Header()
         yield Container(Label("RAM Benchmark in progress, Please wait..."), id="dialog")

@@ -1,3 +1,6 @@
+# UI Imports
+from textual.widgets import Header
+
 # CPU-related imports
 import subprocess
 
@@ -121,7 +124,7 @@ class StabilityCheck(Screen):
 
 class Start(Screen):
     def compose(self) -> ComposeResult:
-        yield Label("Effective Mark V1.1")
+        yield Header(common.TITLE)
         yield Container(
             ListView(
                 ListItem(Label("System Overview"), id='sys'),
@@ -183,7 +186,7 @@ class LauncherApp(App):
     CSS = """
     Screen {
         /*background: #3C3C3C;*/
-        background: darkblue;
+        background: blue;
         align: center middle;
     }
     
@@ -250,11 +253,14 @@ class LauncherApp(App):
 
     ListView:focus ListItem.--highlight {
         color: white;
+        background: red;
     }
        
     """
 
     def on_mount(self):
+        self.title = common.TITLE
+        # self.sub_title = common.METADATA
         self.push_screen(Start())
         # else: self.push_screen(MissingDLL())
 

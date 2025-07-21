@@ -12,3 +12,6 @@ ping = init
 hdd_read = init
 hdd_write = init
 dll_found = False
+
+TITLE = "Effective Mark V1.1 (bootable version)"
+METADATA = "Effective Mark V1.1.0-stable+linuxiso"

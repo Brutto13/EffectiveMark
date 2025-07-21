@@ -3,7 +3,7 @@ import psutil
 from statistics import mean
 from textual.app import ComposeResult
 from textual.screen import Screen
-from textual.widgets import Label, ProgressBar, Button
+from textual.widgets import Label, ProgressBar, Button, Header
 from textual.containers import Container, Horizontal
 
 # Internal imports
@@ -21,6 +21,7 @@ class CPUTest(Screen):
         self.timer = self.app.set_timer(0.1, self.update_screen)
 
     def compose(self) -> ComposeResult:
+        yield Header()
         yield Container(
             Label("CPU Stability Testing"),
             Horizontal(Label("CPU Avg Frequency [MHz]   "), self.freq_bar),
