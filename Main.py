@@ -169,7 +169,7 @@ class LauncherApp(App):
     CSS = """
     Screen {
         /*background: #3C3C3C;*/
-        background: darkblue;
+        background: blue;
         align: center middle;
     }
     

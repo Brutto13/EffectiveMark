@@ -11,7 +11,7 @@ def worker(stop, complexity: int = 150) -> None:
             n = (log(abs(sin(x)-cos(x))+1)-sqrt(abs(sin(tan(complexity-x))+1)+1))**(1/complexity)-complexity**(7/(x+1))
             result.append(n)
 
-    result.clear()
+        result.clear()
 
 
 def multi_cpu(cores: int = -1) -> None:
