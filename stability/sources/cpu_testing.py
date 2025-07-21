@@ -3,6 +3,8 @@ import glob
 import multiprocessing as mp
 from math import *
 
+import psutil
+
 
 def get_cpu_frequencies():
     freqs = {}
@@ -15,11 +17,12 @@ def get_cpu_frequencies():
                 freq_khz = int(f.read().strip())
                 freqs[cpu] = freq_khz / 1000.0  # MHz
         except FileNotFoundError:
-            freqs[cpu] = None
+            freqs[cpu] = psutil.cpu_freq()
     return freqs
 
+
 def get_cpu_temperatures():
-    temps = {}
+    temps = []
     thermal_zones = glob.glob('/sys/class/thermal/thermal_zone*')
     for zone in thermal_zones:
         try:
@@ -27,7 +30,7 @@ def get_cpu_temperatures():
                 sensor_type = f.read().strip()
             with open(os.path.join(zone, 'temp'), 'r') as f:
                 temp_milli = int(f.read().strip())
-                temps[sensor_type] = temp_milli / 1000.0  # °C
+                temps.append(temp_milli / 1000.0)  # °C
         except (FileNotFoundError, ValueError):
             continue
     return temps

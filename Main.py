@@ -1,5 +1,6 @@
+#!/bin/sh
 # UI Imports
-from textual.widgets import Header
+from textual.app import App
 
 # CPU-related imports
 import subprocess
@@ -135,7 +136,7 @@ class Start(Screen):
         if choice == "sys": self.app.switch_screen("SystemOverview")
         elif choice == "benchmark": self.app.switch_screen("StartScreen")
         elif choice == "tests": self.app.switch_screen("StabilityScreen")
-        elif choice == "off": self.app.exit()
+        elif choice == "off": os.system("poweroff")
 
 
 class LauncherApp(App):

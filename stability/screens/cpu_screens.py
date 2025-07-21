@@ -1,6 +1,6 @@
 import psutil
 
-from statistics import mean
+from statistics import mean, StatisticsError
 from textual.app import ComposeResult
 from textual.screen import Screen
 from textual.widgets import Label, ProgressBar, Button, Header
@@ -44,10 +44,10 @@ class CPUTest(Screen):
             self.processes.append(proc)
 
     def update_screen(self):
-        self.freq_bar.update(progress=mean(get_cpu_frequencies()))
-        # self.freq_bar.update(progress=psutil.cpu_freq().current)
-        self.temp_bar.update(progress=mean(get_cpu_temperatures()))
-        # psutil.cpu_percent()
+        try:
+            self.freq_bar.update(progress=mean(get_cpu_frequencies()))
+            self.temp_bar.update(progress=mean(get_cpu_temperatures()))
+        except: pass
 
     def on_screen_resume(self) -> None:
         self.app.call_later(self.multi_cpu)
