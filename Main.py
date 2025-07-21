@@ -73,6 +73,7 @@ class SystemOverview(Screen):
 
 class BenchmarkStart(Screen):
     def compose(self) -> ComposeResult:
+        yield Header()
         yield Container(ListView(
             ListItem(Label("1. System Overview"), id="sys"),
             ListItem(Label("2. Run CPU Benchmark"), id="cpu"),
@@ -124,7 +125,7 @@ class StabilityCheck(Screen):
 
 class Start(Screen):
     def compose(self) -> ComposeResult:
-        yield Header(common.TITLE)
+        yield Header()
         yield Container(
             ListView(
                 ListItem(Label("System Overview"), id='sys'),
